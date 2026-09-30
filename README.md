@@ -32,3 +32,8 @@ The full interface is documented in the header of `udt.sty`.
 
 `examples/` — every change to the package must leave all examples
 compiling without errors.
+
+## License
+
+LaTeX Project Public License 1.3c or later — see `LICENSE`.
+Modified versions must be distributed under a different name.

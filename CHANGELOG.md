@@ -5,8 +5,10 @@ versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- License: LPPL 1.3c (`LICENSE`, notice in `udt.sty`).
+
 ### Planned
-- License.
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
