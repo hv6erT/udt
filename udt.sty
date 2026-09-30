@@ -1,67 +1,90 @@
 % ============================================================
-%  udt.sty — uniwersalny szablon dłuższej pracy tekstowej
+%  udt.sty — Universal Document Template
 %
-%  Pochodna urt.sty (szablon sprawozdania laboratoryjnego),
-%  przystosowana do prac wielorozdziałowych: rozbudowany blok
-%  tytułowy, spis treści, numeracja w obrębie rozdziałów,
-%  układ jednokolumnowy, bibliografia przez biblatex/biber.
+%  One package for lab reports and longer texts (scripts,
+%  course papers, notes). Successor of urt.sty and of the
+%  former udt.sty.
 %
-%  Użycie:
+%  Usage:
 %    \documentclass[a4paper, polish, 11pt]{scrartcl}
-%    \usepackage{udt}
-%    \addbibresource{bibliografia.bib}     % opcjonalnie
+%    \usepackage{udt}               % options: chem
+%    \addbibresource{references.bib}   % optional
 %
-%  Pola strony tytułowej:
-%    \uczelnia{Nazwa uczelni / wydziału}   % opcjonalne, u góry
-%    \przedmiot{Nazwa przedmiotu}
-%    \kierunek{Kierunek, rok, grupa}
-%    \title{Tytuł pracy}
-%    \podtytul{Podtytuł}                   % opcjonalne
-%    \autor{Imię i nazwisko}
-%    \album{Numer albumu}                  % opcjonalne
-%    \prowadzacy{Imię i nazwisko prowadzącego}
-%    \miejsce{Miasto}                      % opcjonalne
-%    \datazdania{DD miesiąca RRRR}
+%  The document language is taken from the class options
+%  (babel). Typeset strings (headings, labels, cross-reference
+%  names) follow it: Polish and English are provided.
 %
-%  Struktura dokumentu:
-%    \maketitle                   — blok tytułowy u góry 1. strony
-%    \begin{abstrakt} ... \end{abstrakt}      — opcjonalny
-%    \begin{przedmowa} ... \end{przedmowa}    — opcjonalna
+%  Title fields (all optional except \title and \author):
+%    \institution{University / faculty}
+%    \course{Course name}
+%    \group{Programme, year, group}
+%    \title{Title}
+%    \subtitle{Subtitle}
+%    \author{Full name}
+%    \studentid{Student ID number}
+%    \supervisor{Supervisor's name}
+%    \place{City}
+%    \date{Submission date}          % default: \today
+%    \exercise{Exercise number}      % reports
+%    \experimentdate{Date}           % reports
+%
+%  Document structure:
+%    \maketitle
+%    \begin{abstract} ... \end{abstract}   % optional
+%    \begin{preface}  ... \end{preface}    % optional
 %    \tableofcontents
-%    \listoffigures               — opcjonalnie
 %    \section{...}
 %    ...
-%    \printbibliography           — jeśli używany biblatex
+%    \printbibliography
 %
-%  Makra pomocnicze:
-%    \std                — indeks górny stanu standardowego (⦵)
-%    \Eo                 — E z indeksem stanu standardowego
-%    \redox{Ox}{Red}     — para redoks w zapisie Ox/Red
-%    \ce{...}            — wzory i reakcje chemiczne (mhchem)
-%    \begin{wzor}{nazwa} — wyróżniony, numerowany wzór w ramce
+%  Theorem-like environments (one shared counter, numbered
+%  within sections): theorem, law, definition, fact; plus
+%  proof (amsthm).
 %
-%  Kompilacja: pdflatex → biber → pdflatex → pdflatex
+%  Math: derivative (derivatives), fixdif (differentials),
+%  physics2 modules (brackets, bra-ket, nabla, operators,
+%  matrices). Aliases keep the habits from the physics package:
+%    \dv \pdv \dd \vb \va \vu \vdot \cross \abs \norm \eval
+%    \grad \div \curl \laplacian \bra \ket \braket \Tr ...
+%  Automatic brackets: \ab(...) instead of physics' \qty(...);
+%  \qty is siunitx's quantity command.
+%
+%  Option chem: mhchem (\ce) and the macros
+%    \std             superscript of the standard state (⦵)
+%    \Eo              standard potential E⦵
+%    \redox{Ox}{Red}  redox couple Ox/Red
+%
+%  Build: pdflatex → biber → pdflatex → pdflatex
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt}[2026/09/07 Uniwersalny szablon dluzszej pracy tekstowej]
+\ProvidesPackage{udt}[2026/09/30 v0.2.0 Universal Document Template]
 
 % ============================================================
-%  PAKIETY — kodowanie i czcionki
+%  OPTIONS
+% ============================================================
+\newif\ifudt@chem
+\DeclareOption{chem}{\udt@chemtrue}
+\DeclareOption*{\PackageWarning{udt}{Unknown option `\CurrentOption'}}
+\ProcessOptions\relax
+
+% ============================================================
+%  PACKAGES — encoding, fonts, language
+%  babel takes the language from the class options.
 % ============================================================
 \RequirePackage[T1]{fontenc}
-\RequirePackage[utf8]{inputenc}
-\RequirePackage[polish]{babel}
+\RequirePackage{babel}
 \RequirePackage{lmodern}
 
 % ============================================================
-%  PAKIETY — matematyka i chemia
+%  PACKAGES — mathematics
 %
-%  Zamiast pakietu physics (konflikt \qty z siunitx 3) użyto:
-%    derivative — pochodne (\odv, \pdv; wielkość stała
-%                 w indeksie: \pdv{E}{T}_{p} daje (∂E/∂T)_p),
-%    mathtools  — \abs, \norm przez DeclarePairedDelimiter,
-%    mhchem     — wzory chemiczne i reakcje (\ce).
+%  The physics package is not used: unmaintained since 2012,
+%  its \qty clashes with siunitx and its brackets break line
+%  breaking. Instead:
+%    derivative — derivatives (\odv, \pdv, \fdv, ...),
+%    fixdif     — upright differential \d with correct spacing,
+%    physics2   — maintained modular successor of physics.
 % ============================================================
 \RequirePackage{amsmath}
 \RequirePackage{amssymb}
@@ -69,10 +92,20 @@
 \RequirePackage{mathtools}
 \RequirePackage{bm}
 \RequirePackage{derivative}
-\RequirePackage[version=4]{mhchem}
+\RequirePackage{fixdif}
+\RequirePackage{physics2}
+\usephysicsmodule{
+	ab,            % \ab(...) — automatic brackets
+	ab.legacy,     % \abs, \norm, \eval, \order
+	braket,        % \bra, \ket, \braket, \ketbra (brace syntax)
+	nabla.legacy,  % \grad, \div, \curl, \laplacian; ÷ is \divsymbol
+	op.legacy,     % \Tr, \Res, \sin-like operators, \Re, \Im
+	qtext.legacy,  % \qq, \qc, ...
+	diagmat,       % diagonal matrices
+	xmat,          % generic matrices
+}
 \RequirePackage{siunitx}
 \sisetup{
-	locale               = PL,
 	per-mode             = symbol,
 	separate-uncertainty = true,
 	range-phrase         = {\text{\textendash}},
@@ -80,7 +113,14 @@
 }
 
 % ============================================================
-%  PAKIETY — grafika
+%  PACKAGES — chemistry (option chem)
+% ============================================================
+\ifudt@chem
+	\RequirePackage[version=4]{mhchem}
+\fi
+
+% ============================================================
+%  PACKAGES — graphics
 % ============================================================
 \RequirePackage{graphicx}
 \RequirePackage{float}
@@ -92,32 +132,22 @@
 \pgfplotsset{compat=1.18}
 
 % ============================================================
-%  PAKIETY — tabele
+%  PACKAGES — tables, lists
 % ============================================================
 \RequirePackage{booktabs}
 \RequirePackage{array}
 \RequirePackage{multirow}
-
-% ============================================================
-%  PAKIETY — listy
-% ============================================================
 \RequirePackage{enumitem}
 
 % ============================================================
-%  PAKIETY — ramki
-% ============================================================
-\RequirePackage{tcolorbox}
-\tcbuselibrary{breakable, skins}
-
-% ============================================================
-%  PAKIETY — narzędzia
+%  PACKAGES — tools
 % ============================================================
 \RequirePackage{xcolor}
 \RequirePackage{needspace}
 \RequirePackage{etoolbox}
 
 % ============================================================
-%  PAKIETY — układ strony
+%  PACKAGES — page layout, typography
 % ============================================================
 \RequirePackage{geometry}
 \geometry{
@@ -127,74 +157,157 @@
 	top    = 2.5cm,
 	bottom = 2.5cm,
 }
-
 \RequirePackage{scrlayer-scrpage}
-
-% ============================================================
-%  PAKIETY — typografia
-% ============================================================
 \RequirePackage{microtype}
 \RequirePackage{setspace}
 
 % ============================================================
-%  PAKIETY — bibliografia
-%  Numeracja w kolejności cytowania; \cite daje [1], [2, 3].
+%  PACKAGES — bibliography
+%  Numbered in order of citation; \cite gives [1], [2, 3].
 % ============================================================
 \RequirePackage{csquotes}
 \RequirePackage[
-	backend    = biber,
-	style      = numeric-comp,
-	sorting    = none,
+	backend     = biber,
+	style       = numeric-comp,
+	sorting     = none,
 	maxbibnames = 6,
-	giveninits = true,
+	giveninits  = true,
 ]{biblatex}
 
 % ============================================================
-%  PAKIETY — hiperłącza (ładowane na końcu)
+%  PACKAGES — hyperlinks (loaded last)
+%  pdfusetitle copies \title and \author into the PDF metadata.
 % ============================================================
-\RequirePackage[hidelinks]{hyperref}
+\RequirePackage[hidelinks, pdfusetitle]{hyperref}
 \RequirePackage{cleveref}
 
-% ============================================================
-%  KONFIGURACJA — pola strony tytułowej
-% ============================================================
 \makeatletter
 
-\newcommand{\@uczelnia}{}
-\newcommand{\uczelnia}[1]{\renewcommand{\@uczelnia}{#1}}
-
-\newcommand{\@przedmiot}{}
-\newcommand{\przedmiot}[1]{\renewcommand{\@przedmiot}{#1}}
-
-\newcommand{\@kierunek}{}
-\newcommand{\kierunek}[1]{\renewcommand{\@kierunek}{#1}}
-
-\newcommand{\@podtytul}{}
-\newcommand{\podtytul}[1]{\renewcommand{\@podtytul}{#1}}
-
-\newcommand{\@autor}{}
-\newcommand{\autor}[1]{\renewcommand{\@autor}{#1}}
-
-\newcommand{\@album}{}
-\newcommand{\album}[1]{\renewcommand{\@album}{#1}}
-
-\newcommand{\@prowadzacy}{}
-\newcommand{\prowadzacy}[1]{\renewcommand{\@prowadzacy}{#1}}
-
-\newcommand{\@miejsce}{}
-\newcommand{\miejsce}[1]{\renewcommand{\@miejsce}{#1}}
-
-\newcommand{\@datazdania}{}
-\newcommand{\datazdania}[1]{\renewcommand{\@datazdania}{#1}}
-
-\makeatother
+% ============================================================
+%  TITLE FIELDS
+%
+%  Each field is stored in \udt@<field> by a plain \def, and
+%  tested with etoolbox's \ifdefempty. (The former
+%  \newcommand + \ifx\...\empty test was always false, because
+%  \newcommand makes \long macros and \empty is not \long.)
+%
+%  \title, \author, \date and \subtitle are the standard ones
+%  (LaTeX / KOMA-Script).
+% ============================================================
+\newcommand*{\udt@newfield}[1]{%
+	\expandafter\let\csname udt@#1\endcsname\@empty
+	\expandafter\newcommand\csname #1\endcsname[1]{%
+		\expandafter\def\csname udt@#1\endcsname{##1}}%
+}
+\udt@newfield{institution}
+\udt@newfield{course}
+\udt@newfield{group}
+\udt@newfield{studentid}
+\udt@newfield{supervisor}
+\udt@newfield{place}
+\udt@newfield{exercise}
+\udt@newfield{experimentdate}
 
 % ============================================================
-%  KONFIGURACJA — nagłówki bieżące
-%  Wewnętrzny róg: numer i tytuł bieżącego rozdziału (section),
-%  zewnętrzny: numer strony. Strony rozpoczynające rozdział
-%  mają ten sam styl (scrartcl nie robi \chapter, więc nie ma
-%  potrzeby stylu "plain").
+%  LOCALIZATION
+%
+%  Typeset strings live in \udt@name@<key>. English is the
+%  default for any language; Polish overrides it. The sets are
+%  attached to babel's \captions<language>, so they switch
+%  together with the language — also mid-document.
+% ============================================================
+\newcommand*{\udt@captions@english}{%
+	\def\udt@name@abstract{Abstract}%
+	\def\udt@name@preface{Preface}%
+	\def\udt@name@supervisor{Supervisor}%
+	\def\udt@name@studentid{student ID}%
+	\def\udt@name@theorem{Theorem}%
+	\def\udt@name@law{Law}%
+	\def\udt@name@definition{Definition}%
+	\def\udt@name@fact{Fact}%
+	\sisetup{locale=UK}%
+	\crefname{equation}{Eq.}{Eqs.}%
+	\Crefname{equation}{Equation}{Equations}%
+	\crefname{figure}{Fig.}{Figs.}%
+	\Crefname{figure}{Figure}{Figures}%
+	\crefname{subfigure}{Fig.}{Figs.}%
+	\Crefname{subfigure}{Figure}{Figures}%
+	\crefname{table}{Table}{Tables}%
+	\Crefname{table}{Table}{Tables}%
+	\crefname{part}{part}{parts}%
+	\Crefname{part}{Part}{Parts}%
+	\crefname{section}{section}{sections}%
+	\Crefname{section}{Section}{Sections}%
+	\crefname{subsection}{section}{sections}%
+	\Crefname{subsection}{Section}{Sections}%
+	\crefname{subsubsection}{section}{sections}%
+	\Crefname{subsubsection}{Section}{Sections}%
+	\crefname{theorem}{theorem}{theorems}%
+	\Crefname{theorem}{Theorem}{Theorems}%
+	\crefname{law}{law}{laws}%
+	\Crefname{law}{Law}{Laws}%
+	\crefname{definition}{definition}{definitions}%
+	\Crefname{definition}{Definition}{Definitions}%
+	\crefname{fact}{fact}{facts}%
+	\Crefname{fact}{Fact}{Facts}%
+	\def\crefpairconjunction{ and }%
+	\def\crefmiddleconjunction{, }%
+	\def\creflastconjunction{ and }%
+	\def\crefrangeconjunction{--}%
+}
+
+% Figures and tables are abbreviated and capitalized regardless
+% of the position in a sentence (“Rys. 3”, “Tab. 2”); the
+% abbreviation has no plural, so both arguments are equal.
+\newcommand*{\udt@captions@polish}{%
+	\def\udt@name@abstract{Abstrakt}%
+	\def\udt@name@preface{Przedmowa}%
+	\def\udt@name@supervisor{Prowadzący}%
+	\def\udt@name@studentid{nr albumu}%
+	\def\udt@name@theorem{Twierdzenie}%
+	\def\udt@name@law{Prawo}%
+	\def\udt@name@definition{Definicja}%
+	\def\udt@name@fact{Fakt}%
+	\sisetup{locale=PL}%
+	\crefname{equation}{równanie}{równania}%
+	\Crefname{equation}{Równanie}{Równania}%
+	\crefname{figure}{Rys.}{Rys.}%
+	\Crefname{figure}{Rys.}{Rys.}%
+	\crefname{subfigure}{Rys.}{Rys.}%
+	\Crefname{subfigure}{Rys.}{Rys.}%
+	\crefname{table}{Tab.}{Tab.}%
+	\Crefname{table}{Tab.}{Tab.}%
+	\crefname{part}{część}{części}%
+	\Crefname{part}{Część}{Części}%
+	\crefname{section}{rozdział}{rozdziały}%
+	\Crefname{section}{Rozdział}{Rozdziały}%
+	\crefname{subsection}{podrozdział}{podrozdziały}%
+	\Crefname{subsection}{Podrozdział}{Podrozdziały}%
+	\crefname{subsubsection}{punkt}{punkty}%
+	\Crefname{subsubsection}{Punkt}{Punkty}%
+	\crefname{theorem}{twierdzenie}{twierdzenia}%
+	\Crefname{theorem}{Twierdzenie}{Twierdzenia}%
+	\crefname{law}{prawo}{prawa}%
+	\Crefname{law}{Prawo}{Prawa}%
+	\crefname{definition}{definicja}{definicje}%
+	\Crefname{definition}{Definicja}{Definicje}%
+	\crefname{fact}{fakt}{fakty}%
+	\Crefname{fact}{Fakt}{Fakty}%
+	\def\crefpairconjunction{ i }%
+	\def\crefmiddleconjunction{, }%
+	\def\creflastconjunction{ oraz }%
+	\def\crefrangeconjunction{--}%
+}
+
+\udt@captions@english
+\@for\udt@lang:={english,british,UKenglish,american,USenglish}\do{%
+	\expandafter\addto\csname captions\udt@lang\endcsname{\udt@captions@english}}
+\addto\captionspolish{\udt@captions@polish}
+
+% ============================================================
+%  RUNNING HEADS
+%  Inner corner: number and title of the current section,
+%  outer corner: page number.
 % ============================================================
 \pagestyle{scrheadings}
 \clearpairofpagestyles
@@ -206,7 +319,7 @@
 \setkomafont{pagenumber}{\small\normalfont}
 
 % ============================================================
-%  KONFIGURACJA — typografia
+%  TYPOGRAPHY
 % ============================================================
 \setstretch{1.15}
 \setlength{\parskip}{4pt}
@@ -222,7 +335,7 @@
 \setlength{\floatsep}{12pt}
 
 % ============================================================
-%  KONFIGURACJA — hiperłącza
+%  HYPERLINKS
 % ============================================================
 \hypersetup{
 	colorlinks = false,
@@ -231,41 +344,56 @@
 }
 
 % ============================================================
-%  KONFIGURACJA — numeracja
-%  Rozdziały i podrozdziały numerowane i widoczne w spisie;
-%  równania, rysunki i tabele numerowane w obrębie rozdziału
-%  (np. rysunek 12.3).
+%  NUMBERING
+%  Sections and subsections numbered and listed in the TOC;
+%  equations, figures and tables numbered within sections
+%  (e.g. figure 12.3).
 % ============================================================
 \setcounter{secnumdepth}{2}
 \setcounter{tocdepth}{2}
 \counterwithin{equation}{section}
 \counterwithin{figure}{section}
 \counterwithin{table}{section}
-\renewcommand{\theequation}{\thesection.\arabic{equation}}
+\creflabelformat{equation}{(#2#1#3)}
 
 % ============================================================
-%  KONFIGURACJA — matematyka
+%  MATHEMATICS — operators and aliases
+%
+%  Aliases for the physics package habits:
+%    \dv       → \odv (derivative)
+%    \dd       → \d   (fixdif)
+%    \vb{a}    bold upright vector,  \vb*{a} bold italic
+%    \va{a}    arrow vector,         \va*{a} arrow italic
+%    \vu{a}    unit vector (hat),    \vu*{a} italic
+%    \vdot, \cross — dot and cross product
 % ============================================================
 \DeclareMathOperator{\sgn}{sgn}
-\DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
-\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+
+\NewDocumentCommand{\dv}{}{\odv}
+\NewDocumentCommand{\dd}{}{\d}
+\NewDocumentCommand{\vb}{s m}{\IfBooleanTF{#1}{\bm{#2}}{\bm{\mathrm{#2}}}}
+\NewDocumentCommand{\va}{s m}{\IfBooleanTF{#1}{\vec{#2}}{\vec{\mathrm{#2}}}}
+\NewDocumentCommand{\vu}{s m}{\IfBooleanTF{#1}{\hat{\bm{#2}}}{\hat{\bm{\mathrm{#2}}}}}
+\NewDocumentCommand{\vdot}{}{\cdot}
+\NewDocumentCommand{\cross}{}{\times}
 
 % ============================================================
-%  KONFIGURACJA — makra elektrochemiczne
-%  \std   — indeks górny stanu standardowego (znak plimsolla ⦵
-%           przybliżony przez \ominus, zgodnie z zaleceniem IUPAC
-%           dopuszczającym ten symbol);
-%  \Eo    — potencjał standardowy E⦵;
-%  \redox — para redoks Ox/Red, np. \redox{Cu^{2+}}{Cu}.
+%  CHEMISTRY MACROS (option chem)
+%  \std   — standard-state superscript (the Plimsoll mark ⦵
+%           approximated by \ominus, as IUPAC permits);
+%  \Eo    — standard potential E⦵;
+%  \redox — redox couple Ox/Red, e.g. \redox{Cu^{2+}}{Cu}.
 % ============================================================
-\newcommand{\std}{^{\ominus}}
-\newcommand{\Eo}{E\std}
-\newcommand{\redox}[2]{\ce{#1}/\ce{#2}}
+\ifudt@chem
+	\newcommand{\std}{^{\ominus}}
+	\newcommand{\Eo}{E\std}
+	\newcommand{\redox}[2]{\ce{#1}/\ce{#2}}
+\fi
 
 % ============================================================
-%  KONFIGURACJA — nagłówki sekcji (KOMA)
-%  \part w scrartcl to śródtytuł części (bez nowej strony);
-%  numeracja rozdziałów biegnie przez części bez resetu.
+%  SECTION HEADINGS (KOMA)
+%  \part in scrartcl is an in-text heading (no new page);
+%  section numbering runs through parts without reset.
 % ============================================================
 \setkomafont{part}{\normalfont\bfseries\huge}
 \setkomafont{partnumber}{\normalfont\bfseries\huge}
@@ -278,7 +406,7 @@
 \RedeclareSectionCommand[beforeskip=0.5cm, afterskip=0.2cm]{subsubsection}
 
 % ============================================================
-%  KONFIGURACJA — spis treści
+%  TABLE OF CONTENTS
 % ============================================================
 \setkomafont{disposition}{\normalfont\bfseries}
 \KOMAoptions{toc=listof}
@@ -286,7 +414,8 @@
 \RedeclareSectionCommand[tocindent=2.2em, tocnumwidth=3.0em]{subsection}
 
 % ============================================================
-%  KONFIGURACJA — podpisy
+%  CAPTIONS
+%  Names (Figure / Rysunek, ...) come from babel.
 % ============================================================
 \captionsetup{
 	font      = small,
@@ -295,50 +424,13 @@
 	skip      = 8pt,
 	belowskip = 6pt,
 }
-\captionsetup[figure]{name=Rysunek}
-\captionsetup[table]{name=Tabela}
 \captionsetup[sub]{font=footnotesize, labelfont=normalfont, labelformat=parens}
 
 % ============================================================
-%  KONFIGURACJA — cleveref (polskie nazwy)
-%
-%  Rysunki i tabele skracamy i zapisujemy wielką literą niezależnie
-%  od pozycji w zdaniu — \cref i \Cref dają tak samo „Rys. 3”, „Tab. 2”.
-%  Skrót nie ma liczby mnogiej, więc oba argumenty są takie same;
-%  cleveref sam złoży „Rys. 3 i 4” oraz zakres „Rys. 3--5”.
+%  TITLE BLOCK
+%  A compact block at the top of the first page (no running
+%  head); the text — usually the abstract — follows directly.
 % ============================================================
-\crefname{equation}{równanie}{równania}
-\Crefname{equation}{Równanie}{Równania}
-\crefname{figure}{Rys.}{Rys.}
-\Crefname{figure}{Rys.}{Rys.}
-\crefname{table}{Tab.}{Tab.}
-\Crefname{table}{Tab.}{Tab.}
-\crefname{part}{część}{części}
-\Crefname{part}{Część}{Części}
-\crefname{section}{rozdział}{rozdziały}
-\Crefname{section}{Rozdział}{Rozdziały}
-\crefname{subsection}{podrozdział}{podrozdziały}
-\Crefname{subsection}{Podrozdział}{Podrozdziały}
-\crefname{subsubsection}{punkt}{punkty}
-\Crefname{subsubsection}{Punkt}{Punkty}
-\crefname{subfigure}{Rys.}{Rys.}
-\Crefname{subfigure}{Rys.}{Rys.}
-\creflabelformat{equation}{(#2#1#3)}
-\newcommand{\crefpairconjunction}{ i }
-\newcommand{\crefmiddleconjunction}{, }
-\newcommand{\creflastconjunction}{ oraz }
-\newcommand{\crefrangeconjunction}{--}
-
-% ============================================================
-%  BLOK TYTUŁOWY
-%  Kompromis między belką z urt a osobną stroną tytułową:
-%  zwarty blok na górze pierwszej strony (bez nagłówka
-%  bieżącego), pod nim od razu płynie dalsza treść — zwykle
-%  abstrakt. Pierwsza strona nie jest więc pusta, a tytuł
-%  dostaje więcej miejsca niż w sprawozdaniu.
-% ============================================================
-\makeatletter
-
 \renewcommand{\maketitle}{%
 	\thispagestyle{empty}%
 	\begingroup
@@ -346,44 +438,41 @@
 	\noindent
 	\begin{minipage}[t]{0.62\textwidth}
 		\raggedright
-		\ifx\@uczelnia\empty\else{\small\@uczelnia\par}\fi
-		\ifx\@przedmiot\empty\else{\small\@przedmiot\par}\fi
-		\ifx\@kierunek\empty\else{\small\@kierunek\par}\fi
+		\ifdefempty{\udt@institution}{}{{\small\udt@institution\par}}%
+		\ifdefempty{\udt@course}{}{{\small\udt@course\par}}%
+		\ifdefempty{\udt@group}{}{{\small\udt@group\par}}%
 	\end{minipage}%
 	\hfill
 	\begin{minipage}[t]{0.34\textwidth}
 		\raggedleft\small
-		\ifx\@miejsce\empty\else\@miejsce, \fi\@datazdania\par
+		\ifdefempty{\udt@place}{}{\udt@place, }\@date\par
 	\end{minipage}\par
 	\vspace{2.2em}
 	{\fontsize{24}{29}\selectfont\bfseries\@title\par}
-	\ifx\@podtytul\empty\else
-		\vspace{0.5em}
-		{\large\itshape\@podtytul\par}
-	\fi
+	\ifdefempty{\@subtitle}{}{%
+		\vspace{0.5em}%
+		{\large\itshape\@subtitle\par}}%
 	\vspace{1.6em}
-	{\large\@autor
-		\ifx\@album\empty\else\ {\normalsize(nr albumu \@album)}\fi\par}
-	\ifx\@prowadzacy\empty\else
-		\vspace{0.3em}
-		{\normalsize Prowadzący: \@prowadzacy\par}
-	\fi
+	{\large\@author
+		\ifdefempty{\udt@studentid}{}{%
+			\ {\normalsize(\udt@name@studentid\ \udt@studentid)}}\par}
+	\ifdefempty{\udt@supervisor}{}{%
+		\vspace{0.3em}%
+		{\normalsize\udt@name@supervisor: \udt@supervisor\par}}%
 	\vspace{1.0em}
 	\noindent\rule{\textwidth}{0.6pt}\par
 	\vspace{0.6em}
 	\endgroup
 }
 
-\makeatother
-
 % ============================================================
-%  ŚRODOWISKO abstrakt
-%  Nienumerowany nagłówek "Abstrakt" (poza spisem treści,
-%  z własnym nagłówkiem bieżącym), tekst zwykłym krojem
-%  o nieco zwężonych marginesach.
+%  ENVIRONMENT abstract
+%  Unnumbered heading (outside the TOC, with its own running
+%  head), upright text with slightly narrowed margins.
 % ============================================================
-\newenvironment{abstrakt}{%
-	\section*{Abstrakt}\markboth{Abstrakt}{Abstrakt}%
+\renewenvironment{abstract}{%
+	\section*{\udt@name@abstract}%
+	\markboth{\udt@name@abstract}{\udt@name@abstract}%
 	\begin{list}{}{%
 		\setlength{\leftmargin}{1.5em}%
 		\setlength{\rightmargin}{1.5em}%
@@ -395,11 +484,12 @@
 }
 
 % ============================================================
-%  ŚRODOWISKO przedmowa
-%  Nienumerowany nagłówek "Przedmowa", tekst kursywą.
+%  ENVIRONMENT preface
+%  Unnumbered heading, italic text.
 % ============================================================
-\newenvironment{przedmowa}{%
-	\section*{Przedmowa}\markboth{Przedmowa}{Przedmowa}%
+\newenvironment{preface}{%
+	\section*{\udt@name@preface}%
+	\markboth{\udt@name@preface}{\udt@name@preface}%
 	\itshape
 	\noindent\ignorespaces
 }{%
@@ -407,64 +497,24 @@
 }
 
 % ============================================================
-%  ŚRODOWISKO wzor
-%  Wyróżniony, NUMEROWANY wzór w ramce z nazwą po prawej.
-%  W środku można użyć \label{...} — cleveref odwoła się
-%  do niego jak do zwykłego równania.
-% ============================================================
-\makeatletter
-\newenvironment{wzor}[1]{%
-	\def\@nazwa{#1}%
-	\begin{tcolorbox}[
-		enhanced,
-		breakable,
-		colframe = black,
-		colback  = white,
-		boxrule  = 0.4pt,
-		arc      = 0pt,
-		left     = 12pt,
-		right    = 12pt,
-		top      = 6pt,
-		bottom   = 6pt,
-	]
-	\begin{equation}
-}{%
-	\end{equation}
-	\vspace{-1em}
-	\begin{flushright}
-		\small\itshape\@nazwa
-	\end{flushright}
-	\end{tcolorbox}
-}
-\makeatother
-
-% ============================================================
-%  ŚRODOWISKA twierdzenie, prawo
-%  Wyróżnione, numerowane zdanie — odpowiednik środowiska wzor
-%  dla treści słownej.
+%  THEOREM-LIKE ENVIRONMENTS
 %
-%  Wspólny licznik (stąd [twierdzenie] w drugim \newtheorem),
-%  numeracja w obrębie sekcji — dzięki temu odsyłacz „9.1”
-%  wskazuje dokładnie jeden obiekt.
+%  One shared counter, numbered within sections — a reference
+%  “9.1” points to exactly one object. A proper name goes into
+%  the optional argument:
+%      \begin{law}[First law of electrolysis]\label{law:faraday-1}
+%  gives “Law 9.1 (First law of electrolysis)”.
 %
-%  Nazwa własna idzie w argument opcjonalny:
-%      \begin{prawo}[Pierwsze prawo elektrolizy]
-%          \label{pr:faraday-1}
-%          ...
-%      \end{prawo}
-%  daje nagłówek „Prawo 9.1 (Pierwsze prawo elektrolizy)”,
-%  a cleveref odwoła się przez \cref{pr:faraday-1}.
-%
-%  Style: twierdzenie kursywą (obiekt matematyczny, z dowodem),
-%  prawo pismem prostym (orzeka o świecie, dowodu nie ma).
+%  Styles: theorem and fact in italics (mathematical
+%  statements); law and definition upright (a law speaks
+%  about the world and has no proof).
 % ============================================================
 \theoremstyle{plain}
-\newtheorem{twierdzenie}{Twierdzenie}[section]
+\newtheorem{theorem}{\udt@name@theorem}[section]
+\newtheorem{fact}[theorem]{\udt@name@fact}
 
 \theoremstyle{definition}
-\newtheorem{prawo}[twierdzenie]{Prawo}
+\newtheorem{law}[theorem]{\udt@name@law}
+\newtheorem{definition}[theorem]{\udt@name@definition}
 
-\crefname{twierdzenie}{twierdzenie}{twierdzenia}
-\Crefname{twierdzenie}{Twierdzenie}{Twierdzenia}
-\crefname{prawo}{prawo}{prawa}
-\Crefname{prawo}{Prawo}{Prawa}
+\makeatother
