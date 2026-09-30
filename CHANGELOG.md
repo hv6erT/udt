@@ -7,6 +7,15 @@ versioning: [SemVer](https://semver.org/).
 
 ### Planned
 - English interface: file names, comments, user commands.
+  Typeset strings localized through babel (Polish default, English
+  ready). Agreed names:
+  `\author`, `\title`, `\subtitle`, `\date` (submission),
+  `\experimentdate` (report), `\institution`, `\course`,
+  `\exercise` (report), `\group`, `\studentid`, `\supervisor`,
+  `\place`; environments `abstract`, `preface`; `\begincolumns`;
+  theorem-like `theorem`, `law`, `definition`, `fact`, `proof`.
+  Chemistry macros (`\std`, `\Eo`, `\redox`) behind option `chem`.
+  The boxed-formula environment (`wzor`) is dropped.
 - Merge with `urt.sty`: document type chosen by package option
   (`report` / `script`).
 - Math core without `physics` (unmaintained since 2012, `\qty` clash
