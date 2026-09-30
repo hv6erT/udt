@@ -59,8 +59,11 @@
 %  name with \nameref{...}.
 %
 %  Theorem-like environments (one shared counter, numbered
-%  within sections): theorem, law, definition, fact; plus
-%  proof (amsthm).
+%  within sections), each drawn as a coloured block: definition,
+%  theorem, law, lemma, fact, corollary, example, remark; plus
+%  proof (amsthm) and the unnumbered aside for side information.
+%  Named colours for physical quantities (text and TikZ):
+%  udtPos, udtVel, udtAcc, udtForce, udtMom, udtAxis.
 %
 %  Math: derivative (derivatives), fixdif (differentials),
 %  physics2 modules (brackets, bra-ket, nabla, operators,
@@ -91,7 +94,7 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt}[2026/09/30 v0.3.0 Universal Document Template]
+\ProvidesPackage{udt}[2026/09/30 v0.4.0 Universal Document Template]
 
 % ============================================================
 %  OPTIONS
@@ -179,6 +182,7 @@
 %  PACKAGES — tools
 % ============================================================
 \RequirePackage{xcolor}
+\RequirePackage[most]{tcolorbox}
 \RequirePackage{needspace}
 \RequirePackage{multicol}
 \RequirePackage{etoolbox}
@@ -262,6 +266,11 @@
 	\def\udt@name@law{Law}%
 	\def\udt@name@definition{Definition}%
 	\def\udt@name@fact{Fact}%
+	\def\udt@name@lemma{Lemma}%
+	\def\udt@name@corollary{Corollary}%
+	\def\udt@name@remark{Remark}%
+	\def\udt@name@example{Example}%
+	\def\udt@name@aside{Aside}%
 	\def\udt@name@report{Report on exercise}%
 	\def\udt@name@supervisedby{supervised by}%
 	\def\udt@name@submitted##1##2{Submitted: ##1%
@@ -291,6 +300,14 @@
 	\Crefname{definition}{Definition}{Definitions}%
 	\crefname{fact}{fact}{facts}%
 	\Crefname{fact}{Fact}{Facts}%
+	\crefname{lemma}{lemma}{lemmas}%
+	\Crefname{lemma}{Lemma}{Lemmas}%
+	\crefname{corollary}{corollary}{corollaries}%
+	\Crefname{corollary}{Corollary}{Corollaries}%
+	\crefname{remark}{remark}{remarks}%
+	\Crefname{remark}{Remark}{Remarks}%
+	\crefname{example}{example}{examples}%
+	\Crefname{example}{Example}{Examples}%
 	\def\crefpairconjunction{ and }%
 	\def\crefmiddleconjunction{, }%
 	\def\creflastconjunction{ and }%
@@ -309,6 +326,11 @@
 	\def\udt@name@law{Prawo}%
 	\def\udt@name@definition{Definicja}%
 	\def\udt@name@fact{Fakt}%
+	\def\udt@name@lemma{Lemat}%
+	\def\udt@name@corollary{Wniosek}%
+	\def\udt@name@remark{Uwaga}%
+	\def\udt@name@example{Przykład}%
+	\def\udt@name@aside{Na marginesie}%
 	\def\udt@name@report{Sprawozdanie z ćwiczenia}%
 	\def\udt@name@supervisedby{pod nadzorem}%
 	\def\udt@name@submitted##1##2{Oddano: ##1%
@@ -338,6 +360,14 @@
 	\Crefname{definition}{Definicja}{Definicje}%
 	\crefname{fact}{fakt}{fakty}%
 	\Crefname{fact}{Fakt}{Fakty}%
+	\crefname{lemma}{lemat}{lematy}%
+	\Crefname{lemma}{Lemat}{Lematy}%
+	\crefname{corollary}{wniosek}{wnioski}%
+	\Crefname{corollary}{Wniosek}{Wnioski}%
+	\crefname{remark}{uwaga}{uwagi}%
+	\Crefname{remark}{Uwaga}{Uwagi}%
+	\crefname{example}{przykład}{przykłady}%
+	\Crefname{example}{Przykład}{Przykłady}%
 	\def\crefpairconjunction{ i }%
 	\def\crefmiddleconjunction{, }%
 	\def\creflastconjunction{ oraz }%
@@ -638,17 +668,41 @@
 \AtEndDocument{\ifudt@columns\end{multicols}\fi}
 
 % ============================================================
+%  COLOURS
+%
+%  Block colours (muted) mark the kind of content; quantity
+%  colours (vivid) mark physical quantities in text and figures,
+%  the same in the whole document, e.g.
+%      \textcolor{udtForce}{\vec{F}},   \draw[udtVel, ->] ...
+% ============================================================
+\definecolor{udtDefinitionColor}{RGB}{52,86,139}
+\definecolor{udtTheoremColor}   {RGB}{142,36,36}
+\definecolor{udtLawColor}       {RGB}{94,53,120}
+\definecolor{udtFactColor}      {RGB}{40,100,70}
+\definecolor{udtExampleColor}   {RGB}{85,95,105}
+\definecolor{udtRemarkColor}    {RGB}{176,112,0}
+\definecolor{udtAsideColor}     {RGB}{120,120,120}
+
+\definecolor{udtPos}  {RGB}{0,90,180}     % position, displacement
+\definecolor{udtVel}  {RGB}{0,140,70}     % velocity
+\definecolor{udtAcc}  {RGB}{220,110,0}    % acceleration
+\definecolor{udtForce}{RGB}{200,30,30}    % force, torque
+\definecolor{udtMom}  {RGB}{120,50,160}   % momentum, angular momentum
+\definecolor{udtAxis} {RGB}{110,110,110}  % axes, unit vectors, frames
+
+% ============================================================
 %  THEOREM-LIKE ENVIRONMENTS
 %
-%  One shared counter, numbered within sections — a reference
-%  “9.1” points to exactly one object. A proper name goes into
-%  the optional argument:
-%      \begin{law}[First law of electrolysis]\label{law:faraday-1}
-%  gives “Law 9.1 (First law of electrolysis)”.
+%  One shared counter, numbered within sections (report: through
+%  the whole document) — a reference “9.1” points to exactly one
+%  object. A proper name goes into the optional argument; list
+%  all common names, the most widespread first:
+%      \begin{theorem}[Steiner's theorem (parallel axis theorem)]
 %
-%  Styles: theorem and fact in italics (mathematical
-%  statements); law and definition upright (a law speaks
-%  about the world and has no proof).
+%  Styles: theorem, lemma, fact, corollary in italics
+%  (mathematical statements); law, definition, example, remark
+%  upright. Every environment is drawn as a coloured block with
+%  a bar on the left; proof gets a thin grey bar.
 % ============================================================
 \theoremstyle{plain}
 \ifudt@report
@@ -656,10 +710,61 @@
 \else
 	\newtheorem{theorem}{\udt@name@theorem}[section]
 \fi
+\newtheorem{lemma}[theorem]{\udt@name@lemma}
 \newtheorem{fact}[theorem]{\udt@name@fact}
+\newtheorem{corollary}[theorem]{\udt@name@corollary}
 
 \theoremstyle{definition}
 \newtheorem{law}[theorem]{\udt@name@law}
 \newtheorem{definition}[theorem]{\udt@name@definition}
+\newtheorem{example}[theorem]{\udt@name@example}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{\udt@name@remark}
+
+\tcbset{
+	udt@block/.style = {
+		enhanced, breakable,
+		colback = #1!5, colframe = #1,
+		boxrule = 0pt, leftrule = 2.5pt, arc = 0pt, outer arc = 0pt,
+		left = 7pt, right = 6pt, top = 2pt, bottom = 2pt,
+		before skip = 8pt, after skip = 8pt,
+	},
+}
+\tcolorboxenvironment{definition}{udt@block=udtDefinitionColor}
+\tcolorboxenvironment{theorem}   {udt@block=udtTheoremColor}
+\tcolorboxenvironment{law}       {udt@block=udtLawColor}
+\tcolorboxenvironment{lemma}     {udt@block=udtFactColor}
+\tcolorboxenvironment{fact}      {udt@block=udtFactColor}
+\tcolorboxenvironment{corollary} {udt@block=udtFactColor}
+\tcolorboxenvironment{example}   {udt@block=udtExampleColor}
+\tcolorboxenvironment{remark}    {udt@block=udtRemarkColor}
+\tcolorboxenvironment{proof}{
+	enhanced, breakable, frame hidden, interior hidden,
+	borderline west = {0.6pt}{0pt}{black!30},
+	left = 7pt, right = 0pt, top = 0pt, bottom = 0pt,
+	before skip = 4pt, after skip = 8pt,
+}
+
+% ============================================================
+%  ENVIRONMENT aside
+%  Side information (history, curiosities, applications) that
+%  can be skipped without losing the thread. Unnumbered, smaller
+%  type, grey block:
+%      \begin{aside}[Who was Steiner?] ... \end{aside}
+% ============================================================
+\NewDocumentEnvironment{aside}{o}{%
+	\begin{tcolorbox}[
+		enhanced, breakable,
+		colback = udtAsideColor!6, colframe = udtAsideColor,
+		boxrule = 0pt, leftrule = 2.5pt, arc = 0pt, outer arc = 0pt,
+		left = 7pt, right = 6pt, top = 3pt, bottom = 3pt,
+		before skip = 8pt, after skip = 8pt,
+		fontupper = \small,
+	]%
+	{\small\bfseries\color{udtAsideColor}\udt@name@aside\IfValueT{#1}{: #1}\par}\smallskip
+}{%
+	\end{tcolorbox}%
+}
 
 \makeatother

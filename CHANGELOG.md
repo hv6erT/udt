@@ -12,6 +12,17 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.4.0] — 2026-09-30
+
+### Added
+- Coloured blocks (tcolorbox, bar on the left) for all theorem-like
+  environments; proof gets a thin grey bar.
+- New environments: `lemma`, `corollary` (with `fact`, green),
+  `example`, `remark`; unnumbered `aside` for side information
+  (history, curiosities) — smaller type, grey, skippable.
+- Named colours for physical quantities, for text and TikZ:
+  `udtPos`, `udtVel`, `udtAcc`, `udtForce`, `udtMom`, `udtAxis`.
+
 ## [0.3.0] — 2026-09-30
 
 ### Added
