@@ -8,7 +8,13 @@ numeracja: [SemVer](https://semver.org/lang/pl/).
 ### Planowane
 - Scalenie z `urt.sty`: rodzaj dokumentu wybierany opcją pakietu
   (sprawozdanie / praca).
-- Decyzja: `physics` czy `derivative` we wspólnym rdzeniu.
+- Rdzeń matematyczny bez `physics` (nieutrzymywany od 2012, konflikt
+  `\qty` z siunitx): `derivative` (pochodne), `fixdif` (różniczki),
+  wybrane moduły `physics2` (`ab`, `ab.legacy`, `braket`, `nabla.legacy`,
+  `op.legacy`, `qtext.legacy`, `diagmat`, `xmat`). Aliasy w `udt`
+  dla dawnych nawyków: `\dv`→`\odv`, `\dd`, `\vb`, `\vu`, `\vdot`,
+  `\cross` (moduł `bm-um.legacy` wymaga unicode-math, więc odpada
+  przy pdfLaTeX-u). `\qty(…)` → `\ab(…)`; `\mqty` znika.
 - Numer wersji w `\ProvidesPackage`.
 
 ### Znane usterki
