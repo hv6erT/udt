@@ -1,0 +1,67 @@
+% udt — example of the report mode
+\documentclass[a4paper, polish, 11pt]{scrartcl}
+\usepackage[report]{udt}
+
+\course{Laboratorium drgań i zjawisk falowych}
+\exercise{F-00}
+\title{Wahadło matematyczne}
+\author{Jan Kowalski}
+\studentid{000000}
+\supervisor{dr Jan Nowak}
+\experimentdate{01.10.2026}
+\date{08.10.2026}
+
+\begin{document}
+\maketitle
+
+\begin{preface}
+Celem ćwiczenia jest wyznaczenie przyspieszenia ziemskiego z okresu
+drgań wahadła matematycznego.
+\end{preface}
+
+\begincolumns
+
+\section{Wstęp}\label{sec:wstep}
+Dla małych wychyleń okres drgań wahadła o długości $l$ wynosi
+\begin{equation}
+	T = 2\pi\sqrt{\frac{l}{g}}
+	\label{eq:okres}
+\end{equation}
+skąd po przekształceniu \cref{eq:okres} otrzymujemy $g = 4\pi^2 l / T^2$.
+
+\section{Pomiary}\label{sec:pomiary}
+Wyniki zebrano w \cref{tab:pomiary}, a zależność $T^2(l)$ pokazano
+na \cref{fig:wykres}.
+
+\begin{table}
+	\centering
+	\caption{Okres drgań dla różnych długości wahadła}
+	\label{tab:pomiary}
+	\begin{tabular}{S[table-format=1.2] S[table-format=1.3]}
+		\toprule
+		{$l$ [\si{\metre}]} & {$T$ [\si{\second}]} \\
+		\midrule
+		0.50 & 1.419 \\
+		0.75 & 1.738 \\
+		1.00 & 2.006 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\begin{figure}
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[width=\columnwidth, xlabel={$l$ [\si{\metre}]}, ylabel={$T^2$ [\si{\second\squared}]}]
+			\addplot[only marks] coordinates {(0.50,2.014) (0.75,3.021) (1.00,4.024)};
+			\addplot[domain=0.45:1.05] {4.025*x};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Zależność kwadratu okresu od długości wahadła}
+	\label{fig:wykres}
+\end{figure}
+
+\section{Wnioski}
+Z dopasowania prostej (\nameref{sec:pomiary}) otrzymano
+$g = \qty{9.81(4)}{\metre\per\second\squared}$.
+
+\end{document}

@@ -6,15 +6,29 @@ versioning: [SemVer](https://semver.org/).
 ## [Unreleased]
 
 ### Planned
-- Mode `report` (from `urt.sty`): header bar, two-column layout
-  (`\begincolumns`), unnumbered sections, `\exercise` and
-  `\experimentdate` in the title. Current layout becomes mode `script`.
-- Examples `examples/report.tex`, `examples/script.tex`.
 - License.
+- Release 1.0.0 after the first real report and script are written
+  with the package.
 
-### Known issues (inherited from `urt.sty`, to be solved in `report`)
-- A numbered equation shows “()”; `\cref` to a section gives “??”
-  with `secnumdepth = 0`.
+## [0.3.0] — 2026-09-30
+
+### Added
+- Package options `report` and `script` (default: `script`).
+- Mode `report` (from `urt.sty`): header bar with exercise, title in
+  capitals, author, supervisor and dates; running head “Report on
+  exercise N”; `\begincolumns` opens the two-column body (closed
+  automatically); unnumbered sections; `preface` and `abstract`
+  without headings, full width.
+- Figures and tables in `report` default to `[H]`, so a plain
+  `figure`/`table` works inside columns; `figure*`/`table*` span both.
+- Examples `examples/report.tex` and `examples/script.tex`.
+
+### Fixed (relative to `urt.sty`)
+- Equations in `report` are numbered (1), (2), … — no more empty “()”;
+  `\cref` gives “równanie (1)”.
+- Sections in `report` stay unnumbered; reference them by name with
+  `\nameref` instead of the former `\cref` that gave “??”.
+- Theorem-like environments in `report` are numbered 1, 2, … (not 0.1).
 
 ## [0.2.0] — 2026-09-30
 

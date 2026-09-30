@@ -4,8 +4,9 @@ A LaTeX package for lab reports and longer texts (scripts, course
 papers, notes). One package with two modes, replacing the former
 `urt.sty` (reports) and `udt.sty` (longer texts).
 
-> **Status:** baseline — `udt.sty` as used in the electrochemical
-> cells script. Merge with `urt.sty` in progress (see `CHANGELOG.md`).
+> **Status:** 0.3.0 — both modes working, interface may still change
+> before 1.0.0. Changes and migration notes from `urt.sty` / the old
+> `udt.sty`: see `CHANGELOG.md`.
 
 ## Usage
 
@@ -17,7 +18,11 @@ papers, notes). One package with two modes, replacing the former
 | mode     | purpose                          |
 |----------|----------------------------------|
 | `report` | lab report, two-column layout    |
-| `script` | longer text: TOC, bibliography   |
+| `script` | longer text: TOC, bibliography (default) |
+
+Language (babel) comes from the class options; Polish and English
+strings are provided. Option `chem` adds `mhchem` and chemistry macros.
+The full interface is documented in the header of `udt.sty`.
 
 ## Build
 

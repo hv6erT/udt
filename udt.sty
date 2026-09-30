@@ -7,8 +7,18 @@
 %
 %  Usage:
 %    \documentclass[a4paper, polish, 11pt]{scrartcl}
-%    \usepackage{udt}               % options: chem
+%    \usepackage[report]{udt}       % or [script]; plus chem
 %    \addbibresource{references.bib}   % optional
+%
+%  Modes:
+%    report — lab report: header bar, two-column body after
+%             \begincolumns, unnumbered sections, equations
+%             and floats numbered 1, 2, ...; figures and tables
+%             are placed here ([H]) so they work inside columns,
+%             figure*/table* span both columns.
+%    script — longer text (default): title block, table of
+%             contents, numbered sections, numbering within
+%             sections (e.g. figure 12.3).
 %
 %  The document language is taken from the class options
 %  (babel). Typeset strings (headings, labels, cross-reference
@@ -28,7 +38,7 @@
 %    \exercise{Exercise number}      % reports
 %    \experimentdate{Date}           % reports
 %
-%  Document structure:
+%  Document structure (script):
 %    \maketitle
 %    \begin{abstract} ... \end{abstract}   % optional
 %    \begin{preface}  ... \end{preface}    % optional
@@ -36,6 +46,17 @@
 %    \section{...}
 %    ...
 %    \printbibliography
+%
+%  Document structure (report):
+%    \maketitle
+%    \begin{preface}  ... \end{preface}    % optional, full width
+%    \begin{abstract} ... \end{abstract}   % optional, full width
+%    \begincolumns                        % two columns from here on
+%    \section{...}
+%    ...
+%
+%  Sections in report mode are unnumbered; refer to them by
+%  name with \nameref{...}.
 %
 %  Theorem-like environments (one shared counter, numbered
 %  within sections): theorem, law, definition, fact; plus
@@ -58,13 +79,16 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt}[2026/09/30 v0.2.0 Universal Document Template]
+\ProvidesPackage{udt}[2026/09/30 v0.3.0 Universal Document Template]
 
 % ============================================================
 %  OPTIONS
 % ============================================================
 \newif\ifudt@chem
+\newif\ifudt@report
 \DeclareOption{chem}{\udt@chemtrue}
+\DeclareOption{report}{\udt@reporttrue}
+\DeclareOption{script}{\udt@reportfalse}
 \DeclareOption*{\PackageWarning{udt}{Unknown option `\CurrentOption'}}
 \ProcessOptions\relax
 
@@ -144,6 +168,7 @@
 % ============================================================
 \RequirePackage{xcolor}
 \RequirePackage{needspace}
+\RequirePackage{multicol}
 \RequirePackage{etoolbox}
 
 % ============================================================
@@ -225,6 +250,10 @@
 	\def\udt@name@law{Law}%
 	\def\udt@name@definition{Definition}%
 	\def\udt@name@fact{Fact}%
+	\def\udt@name@report{Report on exercise}%
+	\def\udt@name@supervisedby{supervised by}%
+	\def\udt@name@submitted##1##2{Submitted: ##1%
+		\ifblank{##2}{}{; experiment performed ##2}}%
 	\sisetup{locale=UK}%
 	\crefname{equation}{Eq.}{Eqs.}%
 	\Crefname{equation}{Equation}{Equations}%
@@ -268,6 +297,10 @@
 	\def\udt@name@law{Prawo}%
 	\def\udt@name@definition{Definicja}%
 	\def\udt@name@fact{Fakt}%
+	\def\udt@name@report{Sprawozdanie z ćwiczenia}%
+	\def\udt@name@supervisedby{pod nadzorem}%
+	\def\udt@name@submitted##1##2{Oddano: ##1%
+		\ifblank{##2}{}{ na podstawie ćwiczenia wykonanego ##2}}%
 	\sisetup{locale=PL}%
 	\crefname{equation}{równanie}{równania}%
 	\Crefname{equation}{Równanie}{Równania}%
@@ -306,13 +339,18 @@
 
 % ============================================================
 %  RUNNING HEADS
-%  Inner corner: number and title of the current section,
+%  report: inner corner “Report on exercise N”,
+%  script: number and title of the current section;
 %  outer corner: page number.
 % ============================================================
 \pagestyle{scrheadings}
 \clearpairofpagestyles
-\automark[section]{section}
-\ihead{\headmark}
+\ifudt@report
+	\ihead{\udt@name@report\ \udt@exercise}
+\else
+	\automark[section]{section}
+	\ihead{\headmark}
+\fi
 \ohead{\pagemark}
 \KOMAoptions{headsepline=true}
 \setkomafont{pageheadfoot}{\small\normalfont}
@@ -334,6 +372,9 @@
 \setlength{\textfloatsep}{12pt}
 \setlength{\floatsep}{12pt}
 
+\setlength{\columnsep}{1.5em}
+\setlength{\columnseprule}{0pt}
+
 % ============================================================
 %  HYPERLINKS
 % ============================================================
@@ -345,16 +386,36 @@
 
 % ============================================================
 %  NUMBERING
-%  Sections and subsections numbered and listed in the TOC;
-%  equations, figures and tables numbered within sections
-%  (e.g. figure 12.3).
+%  report: unnumbered sections (refer by \nameref); equations,
+%          figures and tables numbered 1, 2, ... through the
+%          whole report.
+%  script: sections and subsections numbered and listed in the
+%          TOC; equations, figures and tables numbered within
+%          sections (e.g. figure 12.3).
 % ============================================================
-\setcounter{secnumdepth}{2}
-\setcounter{tocdepth}{2}
-\counterwithin{equation}{section}
-\counterwithin{figure}{section}
-\counterwithin{table}{section}
+\ifudt@report
+	\setcounter{secnumdepth}{0}
+	\setcounter{tocdepth}{0}
+\else
+	\setcounter{secnumdepth}{2}
+	\setcounter{tocdepth}{2}
+	\counterwithin{equation}{section}
+	\counterwithin{figure}{section}
+	\counterwithin{table}{section}
+\fi
 \creflabelformat{equation}{(#2#1#3)}
+
+% ============================================================
+%  FLOATS IN REPORT MODE
+%  multicols does not accept floats, so figures and tables are
+%  placed exactly where written ([H], float package). This makes
+%  a plain figure/table work inside a column; figure*/table*
+%  still span both columns (at the top of the next page).
+% ============================================================
+\ifudt@report
+	\floatplacement{figure}{H}
+	\floatplacement{table}{H}
+\fi
 
 % ============================================================
 %  MATHEMATICS — operators and aliases
@@ -395,15 +456,22 @@
 %  \part in scrartcl is an in-text heading (no new page);
 %  section numbering runs through parts without reset.
 % ============================================================
-\setkomafont{part}{\normalfont\bfseries\huge}
-\setkomafont{partnumber}{\normalfont\bfseries\huge}
-\RedeclareSectionCommand[beforeskip=2cm, afterskip=1.5cm]{part}
-\setkomafont{section}{\normalfont\bfseries\Large}
-\setkomafont{subsection}{\normalfont\bfseries\large}
-\setkomafont{subsubsection}{\normalfont\bfseries\normalsize}
-\RedeclareSectionCommand[beforeskip=1.2cm, afterskip=0.5cm]{section}
-\RedeclareSectionCommand[beforeskip=0.7cm, afterskip=0.3cm]{subsection}
-\RedeclareSectionCommand[beforeskip=0.5cm, afterskip=0.2cm]{subsubsection}
+\ifudt@report
+	\setkomafont{section}{\normalfont\bfseries\large}
+	\setkomafont{subsection}{\normalfont\bfseries\normalsize}
+	\RedeclareSectionCommand[beforeskip=1.0cm, afterskip=0.5cm]{section}
+	\RedeclareSectionCommand[beforeskip=0.6cm, afterskip=0.3cm]{subsection}
+\else
+	\setkomafont{part}{\normalfont\bfseries\huge}
+	\setkomafont{partnumber}{\normalfont\bfseries\huge}
+	\RedeclareSectionCommand[beforeskip=2cm, afterskip=1.5cm]{part}
+	\setkomafont{section}{\normalfont\bfseries\Large}
+	\setkomafont{subsection}{\normalfont\bfseries\large}
+	\setkomafont{subsubsection}{\normalfont\bfseries\normalsize}
+	\RedeclareSectionCommand[beforeskip=1.2cm, afterskip=0.5cm]{section}
+	\RedeclareSectionCommand[beforeskip=0.7cm, afterskip=0.3cm]{subsection}
+	\RedeclareSectionCommand[beforeskip=0.5cm, afterskip=0.2cm]{subsubsection}
+\fi
 
 % ============================================================
 %  TABLE OF CONTENTS
@@ -428,10 +496,30 @@
 
 % ============================================================
 %  TITLE BLOCK
-%  A compact block at the top of the first page (no running
-%  head); the text — usually the abstract — follows directly.
+%  report: full-width bar — exercise line, title in capitals,
+%          author, supervisor, dates — closed by a rule.
+%  script: a compact block at the top of the first page (no
+%          running head); the text — usually the abstract —
+%          follows directly.
 % ============================================================
-\renewcommand{\maketitle}{%
+\newcommand{\udt@maketitle@report}{%
+	\thispagestyle{empty}%
+	\noindent
+	\ifdefempty{\udt@exercise}{}{%
+		{\normalsize\udt@name@report\ \udt@exercise}\\[0.8em]}%
+	{\fontsize{20}{24}\selectfont\bfseries\MakeUppercase{\@title}}\\[0.8em]
+	{\small
+		\textit{\@author}%
+		\ifdefempty{\udt@studentid}{}{%
+			\ \textit{[\udt@name@studentid: \udt@studentid]}}\\
+		\ifdefempty{\udt@supervisor}{}{%
+			\hspace*{2em}\udt@name@supervisedby\ \textit{\udt@supervisor}\\[0.4em]}%
+		\udt@name@submitted{\@date}{\udt@experimentdate}%
+	}\\[0.6em]
+	\noindent\rule{\textwidth}{0.4pt}\\[1em]
+}
+
+\newcommand{\udt@maketitle@script}{%
 	\thispagestyle{empty}%
 	\begingroup
 	\setstretch{1.0}%
@@ -465,11 +553,23 @@
 	\endgroup
 }
 
+\renewcommand{\maketitle}{%
+	\ifudt@report\udt@maketitle@report\else\udt@maketitle@script\fi}
+
 % ============================================================
 %  ENVIRONMENT abstract
-%  Unnumbered heading (outside the TOC, with its own running
-%  head), upright text with slightly narrowed margins.
+%  report: small bold italic text, no heading.
+%  script: unnumbered heading (outside the TOC, with its own
+%          running head), upright text with slightly narrowed
+%          margins.
 % ============================================================
+\ifudt@report
+\renewenvironment{abstract}{%
+	\small\bfseries\itshape
+}{%
+	\par\vspace{0.8em}%
+}
+\else
 \renewenvironment{abstract}{%
 	\section*{\udt@name@abstract}%
 	\markboth{\udt@name@abstract}{\udt@name@abstract}%
@@ -482,11 +582,22 @@
 	\end{list}%
 	\par\vspace{0.8em}%
 }
+\fi
 
 % ============================================================
 %  ENVIRONMENT preface
-%  Unnumbered heading, italic text.
+%  report: italic text without heading, closed by a rule.
+%  script: unnumbered heading, italic text.
 % ============================================================
+\ifudt@report
+\newenvironment{preface}{%
+	\itshape
+	\noindent\ignorespaces
+}{%
+	\par\vspace{0.6em}%
+	\noindent\rule{\textwidth}{0.4pt}\\[1em]%
+}
+\else
 \newenvironment{preface}{%
 	\section*{\udt@name@preface}%
 	\markboth{\udt@name@preface}{\udt@name@preface}%
@@ -495,6 +606,24 @@
 }{%
 	\par\vspace{0.8em}%
 }
+\fi
+
+% ============================================================
+%  TWO-COLUMN BODY (report)
+%  \begincolumns opens two columns at the point of the call;
+%  everything above stays full width. A second call does
+%  nothing. The columns are closed automatically at the end of
+%  the document (registered as the last \AtEndDocument hook of
+%  the package).
+% ============================================================
+\newif\ifudt@columns
+\newcommand{\begincolumns}{%
+	\ifudt@columns\else
+		\global\udt@columnstrue
+		\begin{multicols}{2}%
+	\fi
+}
+\AtEndDocument{\ifudt@columns\end{multicols}\fi}
 
 % ============================================================
 %  THEOREM-LIKE ENVIRONMENTS
@@ -510,7 +639,11 @@
 %  about the world and has no proof).
 % ============================================================
 \theoremstyle{plain}
-\newtheorem{theorem}{\udt@name@theorem}[section]
+\ifudt@report
+	\newtheorem{theorem}{\udt@name@theorem}
+\else
+	\newtheorem{theorem}{\udt@name@theorem}[section]
+\fi
 \newtheorem{fact}[theorem]{\udt@name@fact}
 
 \theoremstyle{definition}

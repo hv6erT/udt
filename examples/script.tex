@@ -1,0 +1,51 @@
+% udt — example of the script mode
+\documentclass[a4paper, polish, 11pt]{scrartcl}
+\usepackage[script]{udt}
+
+\institution{Politechnika Gdańska, Wydział FTiMS}
+\course{Mechanika klasyczna}
+\group{Fizyka Techniczna, III rok}
+\title{Moment bezwładności}
+\subtitle{Przykład dokumentu w trybie script}
+\author{Jan Kowalski}
+\studentid{000000}
+\place{Gdańsk}
+\date{30 września 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Przykład pokazuje blok tytułowy, spis treści, środowiska twierdzeń
+i odsyłacze.
+\end{abstract}
+
+\tableofcontents
+
+\section{Definicja}\label{sec:def}
+\begin{definition}[Moment bezwładności]\label{def:I}
+Momentem bezwładności bryły względem osi o wersorze $\vu{n}$ nazywamy
+\begin{equation}
+	I = \int h^2 \dd m, \qquad h^2 = \rho^2 - (\vu{n} \vdot \vb{\rho})^2
+	\label{eq:I}
+\end{equation}
+\end{definition}
+
+\section{Ślad tensora bezwładności}\label{sec:slad}
+\begin{theorem}\label{tw:slad}
+Suma momentów względem trzech wzajemnie prostopadłych osi
+przecinających się w punkcie $O$ wynosi
+$I_x + I_y + I_z = 2 \int r^2 \dd m$.
+\end{theorem}
+\begin{proof}
+Dla osi $x$ mamy $h^2 = y^2 + z^2$; sumując po trzech osiach, każda
+współrzędna pojawia się dwukrotnie.
+\end{proof}
+
+\begin{fact}\label{f:niezm}
+Prawa strona tej równości nie zależy od orientacji osi.
+\end{fact}
+
+Zob. \cref{def:I}, \cref{eq:I}, \cref{tw:slad} oraz \cref{sec:def,sec:slad}.
+
+\end{document}
