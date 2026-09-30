@@ -1,0 +1,470 @@
+% ============================================================
+%  udt.sty — uniwersalny szablon dłuższej pracy tekstowej
+%
+%  Pochodna urt.sty (szablon sprawozdania laboratoryjnego),
+%  przystosowana do prac wielorozdziałowych: rozbudowany blok
+%  tytułowy, spis treści, numeracja w obrębie rozdziałów,
+%  układ jednokolumnowy, bibliografia przez biblatex/biber.
+%
+%  Użycie:
+%    \documentclass[a4paper, polish, 11pt]{scrartcl}
+%    \usepackage{udt}
+%    \addbibresource{bibliografia.bib}     % opcjonalnie
+%
+%  Pola strony tytułowej:
+%    \uczelnia{Nazwa uczelni / wydziału}   % opcjonalne, u góry
+%    \przedmiot{Nazwa przedmiotu}
+%    \kierunek{Kierunek, rok, grupa}
+%    \title{Tytuł pracy}
+%    \podtytul{Podtytuł}                   % opcjonalne
+%    \autor{Imię i nazwisko}
+%    \album{Numer albumu}                  % opcjonalne
+%    \prowadzacy{Imię i nazwisko prowadzącego}
+%    \miejsce{Miasto}                      % opcjonalne
+%    \datazdania{DD miesiąca RRRR}
+%
+%  Struktura dokumentu:
+%    \maketitle                   — blok tytułowy u góry 1. strony
+%    \begin{abstrakt} ... \end{abstrakt}      — opcjonalny
+%    \begin{przedmowa} ... \end{przedmowa}    — opcjonalna
+%    \tableofcontents
+%    \listoffigures               — opcjonalnie
+%    \section{...}
+%    ...
+%    \printbibliography           — jeśli używany biblatex
+%
+%  Makra pomocnicze:
+%    \std                — indeks górny stanu standardowego (⦵)
+%    \Eo                 — E z indeksem stanu standardowego
+%    \redox{Ox}{Red}     — para redoks w zapisie Ox/Red
+%    \ce{...}            — wzory i reakcje chemiczne (mhchem)
+%    \begin{wzor}{nazwa} — wyróżniony, numerowany wzór w ramce
+%
+%  Kompilacja: pdflatex → biber → pdflatex → pdflatex
+% ============================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{udt}[2026/09/07 Uniwersalny szablon dluzszej pracy tekstowej]
+
+% ============================================================
+%  PAKIETY — kodowanie i czcionki
+% ============================================================
+\RequirePackage[T1]{fontenc}
+\RequirePackage[utf8]{inputenc}
+\RequirePackage[polish]{babel}
+\RequirePackage{lmodern}
+
+% ============================================================
+%  PAKIETY — matematyka i chemia
+%
+%  Zamiast pakietu physics (konflikt \qty z siunitx 3) użyto:
+%    derivative — pochodne (\odv, \pdv; wielkość stała
+%                 w indeksie: \pdv{E}{T}_{p} daje (∂E/∂T)_p),
+%    mathtools  — \abs, \norm przez DeclarePairedDelimiter,
+%    mhchem     — wzory chemiczne i reakcje (\ce).
+% ============================================================
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+\RequirePackage{amsthm}
+\RequirePackage{mathtools}
+\RequirePackage{bm}
+\RequirePackage{derivative}
+\RequirePackage[version=4]{mhchem}
+\RequirePackage{siunitx}
+\sisetup{
+	locale               = PL,
+	per-mode             = symbol,
+	separate-uncertainty = true,
+	range-phrase         = {\text{\textendash}},
+	range-units          = single,
+}
+
+% ============================================================
+%  PAKIETY — grafika
+% ============================================================
+\RequirePackage{graphicx}
+\RequirePackage{float}
+\RequirePackage{caption}
+\RequirePackage{subcaption}
+\RequirePackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, calc, decorations.markings, decorations.pathmorphing, patterns, shapes.geometric}
+\RequirePackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% ============================================================
+%  PAKIETY — tabele
+% ============================================================
+\RequirePackage{booktabs}
+\RequirePackage{array}
+\RequirePackage{multirow}
+
+% ============================================================
+%  PAKIETY — listy
+% ============================================================
+\RequirePackage{enumitem}
+
+% ============================================================
+%  PAKIETY — ramki
+% ============================================================
+\RequirePackage{tcolorbox}
+\tcbuselibrary{breakable, skins}
+
+% ============================================================
+%  PAKIETY — narzędzia
+% ============================================================
+\RequirePackage{xcolor}
+\RequirePackage{needspace}
+\RequirePackage{etoolbox}
+
+% ============================================================
+%  PAKIETY — układ strony
+% ============================================================
+\RequirePackage{geometry}
+\geometry{
+	a4paper,
+	left   = 2.5cm,
+	right  = 2.5cm,
+	top    = 2.5cm,
+	bottom = 2.5cm,
+}
+
+\RequirePackage{scrlayer-scrpage}
+
+% ============================================================
+%  PAKIETY — typografia
+% ============================================================
+\RequirePackage{microtype}
+\RequirePackage{setspace}
+
+% ============================================================
+%  PAKIETY — bibliografia
+%  Numeracja w kolejności cytowania; \cite daje [1], [2, 3].
+% ============================================================
+\RequirePackage{csquotes}
+\RequirePackage[
+	backend    = biber,
+	style      = numeric-comp,
+	sorting    = none,
+	maxbibnames = 6,
+	giveninits = true,
+]{biblatex}
+
+% ============================================================
+%  PAKIETY — hiperłącza (ładowane na końcu)
+% ============================================================
+\RequirePackage[hidelinks]{hyperref}
+\RequirePackage{cleveref}
+
+% ============================================================
+%  KONFIGURACJA — pola strony tytułowej
+% ============================================================
+\makeatletter
+
+\newcommand{\@uczelnia}{}
+\newcommand{\uczelnia}[1]{\renewcommand{\@uczelnia}{#1}}
+
+\newcommand{\@przedmiot}{}
+\newcommand{\przedmiot}[1]{\renewcommand{\@przedmiot}{#1}}
+
+\newcommand{\@kierunek}{}
+\newcommand{\kierunek}[1]{\renewcommand{\@kierunek}{#1}}
+
+\newcommand{\@podtytul}{}
+\newcommand{\podtytul}[1]{\renewcommand{\@podtytul}{#1}}
+
+\newcommand{\@autor}{}
+\newcommand{\autor}[1]{\renewcommand{\@autor}{#1}}
+
+\newcommand{\@album}{}
+\newcommand{\album}[1]{\renewcommand{\@album}{#1}}
+
+\newcommand{\@prowadzacy}{}
+\newcommand{\prowadzacy}[1]{\renewcommand{\@prowadzacy}{#1}}
+
+\newcommand{\@miejsce}{}
+\newcommand{\miejsce}[1]{\renewcommand{\@miejsce}{#1}}
+
+\newcommand{\@datazdania}{}
+\newcommand{\datazdania}[1]{\renewcommand{\@datazdania}{#1}}
+
+\makeatother
+
+% ============================================================
+%  KONFIGURACJA — nagłówki bieżące
+%  Wewnętrzny róg: numer i tytuł bieżącego rozdziału (section),
+%  zewnętrzny: numer strony. Strony rozpoczynające rozdział
+%  mają ten sam styl (scrartcl nie robi \chapter, więc nie ma
+%  potrzeby stylu "plain").
+% ============================================================
+\pagestyle{scrheadings}
+\clearpairofpagestyles
+\automark[section]{section}
+\ihead{\headmark}
+\ohead{\pagemark}
+\KOMAoptions{headsepline=true}
+\setkomafont{pageheadfoot}{\small\normalfont}
+\setkomafont{pagenumber}{\small\normalfont}
+
+% ============================================================
+%  KONFIGURACJA — typografia
+% ============================================================
+\setstretch{1.15}
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+
+\setlength{\abovedisplayskip}{8pt}
+\setlength{\belowdisplayskip}{8pt}
+\setlength{\abovedisplayshortskip}{4pt}
+\setlength{\belowdisplayshortskip}{4pt}
+
+\setlength{\intextsep}{12pt}
+\setlength{\textfloatsep}{12pt}
+\setlength{\floatsep}{12pt}
+
+% ============================================================
+%  KONFIGURACJA — hiperłącza
+% ============================================================
+\hypersetup{
+	colorlinks = false,
+	allcolors  = black,
+	pdfborder  = {0 0 0},
+}
+
+% ============================================================
+%  KONFIGURACJA — numeracja
+%  Rozdziały i podrozdziały numerowane i widoczne w spisie;
+%  równania, rysunki i tabele numerowane w obrębie rozdziału
+%  (np. rysunek 12.3).
+% ============================================================
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\counterwithin{equation}{section}
+\counterwithin{figure}{section}
+\counterwithin{table}{section}
+\renewcommand{\theequation}{\thesection.\arabic{equation}}
+
+% ============================================================
+%  KONFIGURACJA — matematyka
+% ============================================================
+\DeclareMathOperator{\sgn}{sgn}
+\DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+
+% ============================================================
+%  KONFIGURACJA — makra elektrochemiczne
+%  \std   — indeks górny stanu standardowego (znak plimsolla ⦵
+%           przybliżony przez \ominus, zgodnie z zaleceniem IUPAC
+%           dopuszczającym ten symbol);
+%  \Eo    — potencjał standardowy E⦵;
+%  \redox — para redoks Ox/Red, np. \redox{Cu^{2+}}{Cu}.
+% ============================================================
+\newcommand{\std}{^{\ominus}}
+\newcommand{\Eo}{E\std}
+\newcommand{\redox}[2]{\ce{#1}/\ce{#2}}
+
+% ============================================================
+%  KONFIGURACJA — nagłówki sekcji (KOMA)
+%  \part w scrartcl to śródtytuł części (bez nowej strony);
+%  numeracja rozdziałów biegnie przez części bez resetu.
+% ============================================================
+\setkomafont{part}{\normalfont\bfseries\huge}
+\setkomafont{partnumber}{\normalfont\bfseries\huge}
+\RedeclareSectionCommand[beforeskip=2cm, afterskip=1.5cm]{part}
+\setkomafont{section}{\normalfont\bfseries\Large}
+\setkomafont{subsection}{\normalfont\bfseries\large}
+\setkomafont{subsubsection}{\normalfont\bfseries\normalsize}
+\RedeclareSectionCommand[beforeskip=1.2cm, afterskip=0.5cm]{section}
+\RedeclareSectionCommand[beforeskip=0.7cm, afterskip=0.3cm]{subsection}
+\RedeclareSectionCommand[beforeskip=0.5cm, afterskip=0.2cm]{subsubsection}
+
+% ============================================================
+%  KONFIGURACJA — spis treści
+% ============================================================
+\setkomafont{disposition}{\normalfont\bfseries}
+\KOMAoptions{toc=listof}
+\RedeclareSectionCommand[tocnumwidth=2.2em]{section}
+\RedeclareSectionCommand[tocindent=2.2em, tocnumwidth=3.0em]{subsection}
+
+% ============================================================
+%  KONFIGURACJA — podpisy
+% ============================================================
+\captionsetup{
+	font      = small,
+	labelfont = bf,
+	labelsep  = period,
+	skip      = 8pt,
+	belowskip = 6pt,
+}
+\captionsetup[figure]{name=Rysunek}
+\captionsetup[table]{name=Tabela}
+\captionsetup[sub]{font=footnotesize, labelfont=normalfont, labelformat=parens}
+
+% ============================================================
+%  KONFIGURACJA — cleveref (polskie nazwy)
+%
+%  Rysunki i tabele skracamy i zapisujemy wielką literą niezależnie
+%  od pozycji w zdaniu — \cref i \Cref dają tak samo „Rys. 3”, „Tab. 2”.
+%  Skrót nie ma liczby mnogiej, więc oba argumenty są takie same;
+%  cleveref sam złoży „Rys. 3 i 4” oraz zakres „Rys. 3--5”.
+% ============================================================
+\crefname{equation}{równanie}{równania}
+\Crefname{equation}{Równanie}{Równania}
+\crefname{figure}{Rys.}{Rys.}
+\Crefname{figure}{Rys.}{Rys.}
+\crefname{table}{Tab.}{Tab.}
+\Crefname{table}{Tab.}{Tab.}
+\crefname{part}{część}{części}
+\Crefname{part}{Część}{Części}
+\crefname{section}{rozdział}{rozdziały}
+\Crefname{section}{Rozdział}{Rozdziały}
+\crefname{subsection}{podrozdział}{podrozdziały}
+\Crefname{subsection}{Podrozdział}{Podrozdziały}
+\crefname{subsubsection}{punkt}{punkty}
+\Crefname{subsubsection}{Punkt}{Punkty}
+\crefname{subfigure}{Rys.}{Rys.}
+\Crefname{subfigure}{Rys.}{Rys.}
+\creflabelformat{equation}{(#2#1#3)}
+\newcommand{\crefpairconjunction}{ i }
+\newcommand{\crefmiddleconjunction}{, }
+\newcommand{\creflastconjunction}{ oraz }
+\newcommand{\crefrangeconjunction}{--}
+
+% ============================================================
+%  BLOK TYTUŁOWY
+%  Kompromis między belką z urt a osobną stroną tytułową:
+%  zwarty blok na górze pierwszej strony (bez nagłówka
+%  bieżącego), pod nim od razu płynie dalsza treść — zwykle
+%  abstrakt. Pierwsza strona nie jest więc pusta, a tytuł
+%  dostaje więcej miejsca niż w sprawozdaniu.
+% ============================================================
+\makeatletter
+
+\renewcommand{\maketitle}{%
+	\thispagestyle{empty}%
+	\begingroup
+	\setstretch{1.0}%
+	\noindent
+	\begin{minipage}[t]{0.62\textwidth}
+		\raggedright
+		\ifx\@uczelnia\empty\else{\small\@uczelnia\par}\fi
+		\ifx\@przedmiot\empty\else{\small\@przedmiot\par}\fi
+		\ifx\@kierunek\empty\else{\small\@kierunek\par}\fi
+	\end{minipage}%
+	\hfill
+	\begin{minipage}[t]{0.34\textwidth}
+		\raggedleft\small
+		\ifx\@miejsce\empty\else\@miejsce, \fi\@datazdania\par
+	\end{minipage}\par
+	\vspace{2.2em}
+	{\fontsize{24}{29}\selectfont\bfseries\@title\par}
+	\ifx\@podtytul\empty\else
+		\vspace{0.5em}
+		{\large\itshape\@podtytul\par}
+	\fi
+	\vspace{1.6em}
+	{\large\@autor
+		\ifx\@album\empty\else\ {\normalsize(nr albumu \@album)}\fi\par}
+	\ifx\@prowadzacy\empty\else
+		\vspace{0.3em}
+		{\normalsize Prowadzący: \@prowadzacy\par}
+	\fi
+	\vspace{1.0em}
+	\noindent\rule{\textwidth}{0.6pt}\par
+	\vspace{0.6em}
+	\endgroup
+}
+
+\makeatother
+
+% ============================================================
+%  ŚRODOWISKO abstrakt
+%  Nienumerowany nagłówek "Abstrakt" (poza spisem treści,
+%  z własnym nagłówkiem bieżącym), tekst zwykłym krojem
+%  o nieco zwężonych marginesach.
+% ============================================================
+\newenvironment{abstrakt}{%
+	\section*{Abstrakt}\markboth{Abstrakt}{Abstrakt}%
+	\begin{list}{}{%
+		\setlength{\leftmargin}{1.5em}%
+		\setlength{\rightmargin}{1.5em}%
+	}%
+	\item\relax
+}{%
+	\end{list}%
+	\par\vspace{0.8em}%
+}
+
+% ============================================================
+%  ŚRODOWISKO przedmowa
+%  Nienumerowany nagłówek "Przedmowa", tekst kursywą.
+% ============================================================
+\newenvironment{przedmowa}{%
+	\section*{Przedmowa}\markboth{Przedmowa}{Przedmowa}%
+	\itshape
+	\noindent\ignorespaces
+}{%
+	\par\vspace{0.8em}%
+}
+
+% ============================================================
+%  ŚRODOWISKO wzor
+%  Wyróżniony, NUMEROWANY wzór w ramce z nazwą po prawej.
+%  W środku można użyć \label{...} — cleveref odwoła się
+%  do niego jak do zwykłego równania.
+% ============================================================
+\makeatletter
+\newenvironment{wzor}[1]{%
+	\def\@nazwa{#1}%
+	\begin{tcolorbox}[
+		enhanced,
+		breakable,
+		colframe = black,
+		colback  = white,
+		boxrule  = 0.4pt,
+		arc      = 0pt,
+		left     = 12pt,
+		right    = 12pt,
+		top      = 6pt,
+		bottom   = 6pt,
+	]
+	\begin{equation}
+}{%
+	\end{equation}
+	\vspace{-1em}
+	\begin{flushright}
+		\small\itshape\@nazwa
+	\end{flushright}
+	\end{tcolorbox}
+}
+\makeatother
+
+% ============================================================
+%  ŚRODOWISKA twierdzenie, prawo
+%  Wyróżnione, numerowane zdanie — odpowiednik środowiska wzor
+%  dla treści słownej.
+%
+%  Wspólny licznik (stąd [twierdzenie] w drugim \newtheorem),
+%  numeracja w obrębie sekcji — dzięki temu odsyłacz „9.1”
+%  wskazuje dokładnie jeden obiekt.
+%
+%  Nazwa własna idzie w argument opcjonalny:
+%      \begin{prawo}[Pierwsze prawo elektrolizy]
+%          \label{pr:faraday-1}
+%          ...
+%      \end{prawo}
+%  daje nagłówek „Prawo 9.1 (Pierwsze prawo elektrolizy)”,
+%  a cleveref odwoła się przez \cref{pr:faraday-1}.
+%
+%  Style: twierdzenie kursywą (obiekt matematyczny, z dowodem),
+%  prawo pismem prostym (orzeka o świecie, dowodu nie ma).
+% ============================================================
+\theoremstyle{plain}
+\newtheorem{twierdzenie}{Twierdzenie}[section]
+
+\theoremstyle{definition}
+\newtheorem{prawo}[twierdzenie]{Prawo}
+
+\crefname{twierdzenie}{twierdzenie}{twierdzenia}
+\Crefname{twierdzenie}{Twierdzenie}{Twierdzenia}
+\crefname{prawo}{prawo}{prawa}
+\Crefname{prawo}{Prawo}{Prawa}
