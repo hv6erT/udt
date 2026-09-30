@@ -1,28 +1,29 @@
-# udt
+# udt — Universal Document Template
 
-Pakiet LaTeX-a do sprawozdań laboratoryjnych i dłuższych prac tekstowych
-(skrypty, prace zaliczeniowe, notatki). Następca `urt.sty`
-(sprawozdania) i dotychczasowego `udt.sty` (prace) — jeden pakiet
-zamiast dwóch.
+A LaTeX package for lab reports and longer texts (scripts, course
+papers, notes). One package with two modes, replacing the former
+`urt.sty` (reports) and `udt.sty` (longer texts).
 
-> **Stan:** wersja wyjściowa — `udt.sty` w postaci używanej w skrypcie
-> o ogniwach. Scalanie z `urt.sty` w toku (zob. `CHANGELOG.md`).
+> **Status:** baseline — `udt.sty` as used in the electrochemical
+> cells script. Merge with `urt.sty` in progress (see `CHANGELOG.md`).
 
-## Użycie
+## Usage
 
 ```latex
 \documentclass[a4paper, polish, 11pt]{scrartcl}
-\usepackage{udt}
+\usepackage[report]{udt}   % or [script]
 ```
 
-Pełny opis pól strony tytułowej, struktury dokumentu i makr —
-w nagłówku `udt.sty`.
+| mode     | purpose                          |
+|----------|----------------------------------|
+| `report` | lab report, two-column layout    |
+| `script` | longer text: TOC, bibliography   |
 
-## Kompilacja
+## Build
 
 `pdflatex → biber → pdflatex → pdflatex`
 
-## Przykłady
+## Examples
 
-Katalog `przyklady/` — każda zmiana pakietu powinna zostawiać
-wszystkie przykłady składającymi się bez błędów.
+`examples/` — every change to the package must leave all examples
+compiling without errors.
