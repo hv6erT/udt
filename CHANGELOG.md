@@ -12,6 +12,14 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.7.1] — 2026-10-10
+
+### Changed
+- Shown variant content is marked by a square bracket instead of a
+  curly brace. When the block breaks across pages the bracket stays
+  open at the break: the first part has only the top tick, the last
+  part only the bottom tick.
+
 ## [0.7.0] — 2026-10-10
 
 ### Added

@@ -87,7 +87,7 @@
 %    \begin{name1}
 %      ...
 %    \end{name1}
-%  Shown variant content is set off by a curly brace on the
+%  Shown variant content is set off by a square bracket on the
 %  left and a small indent; figures and tables inside are placed
 %  where written ([H]). \begin and \end may be indented. Hidden
 %  content is read as an argument: it must have balanced braces
@@ -115,7 +115,7 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt}[2026/10/10 v0.7.0 Universal Document Template]
+\ProvidesPackage{udt}[2026/10/10 v0.7.1 Universal Document Template]
 
 % ============================================================
 %  OPTIONS
@@ -819,7 +819,7 @@
 %  VARIANTS — conditional content
 %  One source, several versions of a document. A variant that is
 %  switched on is an ordinary environment, its content set off by
-%  a brace on the left; a variant that is off takes its body as an
+%  a bracket on the left; a variant that is off takes its body as an
 %  argument and typesets nothing. \begin and \end may be indented
 %  and stand anywhere. The decision is taken at \begin{document},
 %  so \newvariant and \showvariant may come in any order in the
@@ -829,21 +829,33 @@
 %  Option full, or a job name ending in -ext, switches on every
 %  variant. Predefined: extended.
 % ============================================================
-% Shown variant content is marked by a curly brace on the left
+% Shown variant content is marked by a square bracket on the left
 % (distinct in shape from the proof rule, also in greyscale) and
-% a small indent. The block may break across pages — each part
-% gets its own brace; figures and tables inside it are placed
+% a small indent. The block may break across pages — the bracket
+% then stays open at the break (no tick at the bottom of the first
+% part nor at the top of the next); figures and tables inside it are placed
 % where written ([H]), since a float cannot leave a box. Inside
 % another box (e.g. a proof) the block cannot break, so long
 % content there is better split into several shorter blocks.
 \definecolor{udtVariantColor}{RGB}{64,64,64}
+\tikzset{udt@bracket/.style = {udtVariantColor, line width = 0.8pt,
+	line join = miter, line cap = butt}}
+\def\udt@tick{6pt}
 \newenvironment{udt@variantblock}{%
 	\begin{tcolorbox}[
 		enhanced, breakable, frame hidden, interior hidden,
-		overlay = {\draw[udtVariantColor, line width = 0.8pt,
-			decorate, decoration = {brace, amplitude = 6pt}]
-			([xshift=4pt]frame.south west) -- ([xshift=4pt]frame.north west);},
-		left = 12pt, right = 0pt, top = 1pt, bottom = 1pt,
+		overlay unbroken = {\draw[udt@bracket]
+			([xshift=\udt@tick]frame.north west) -- ([xshift=2pt]frame.north west)
+			-- ([xshift=2pt]frame.south west) -- ([xshift=\udt@tick]frame.south west);},
+		overlay first = {\draw[udt@bracket]
+			([xshift=\udt@tick]frame.north west) -- ([xshift=2pt]frame.north west)
+			-- ([xshift=2pt]frame.south west);},
+		overlay middle = {\draw[udt@bracket]
+			([xshift=2pt]frame.north west) -- ([xshift=2pt]frame.south west);},
+		overlay last = {\draw[udt@bracket]
+			([xshift=2pt]frame.north west)
+			-- ([xshift=2pt]frame.south west) -- ([xshift=\udt@tick]frame.south west);},
+		left = 10pt, right = 0pt, top = 1pt, bottom = 1pt,
 		boxsep = 0pt, before skip = 6pt, after skip = 6pt,
 	]%
 	\renewenvironment{figure}[1][]{\udt@figure@float[H]}{\udt@endfigure@float}%
