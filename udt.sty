@@ -115,7 +115,7 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt}[2026/10/10 v0.6.0 Universal Document Template]
+\ProvidesPackage{udt}[2026/10/10 v0.6.1 Universal Document Template]
 
 % ============================================================
 %  OPTIONS
@@ -808,15 +808,17 @@
 % (distinct in shape from the proof rule, also in greyscale) and
 % a small indent. The block may break across pages — each part
 % gets its own brace; figures and tables inside it are placed
-% where written ([H]), since a float cannot leave a box.
+% where written ([H]), since a float cannot leave a box. Inside
+% another box (e.g. a proof) the block cannot break, so long
+% content there is better split into several shorter blocks.
 \definecolor{udtVariantColor}{RGB}{64,64,64}
 \newenvironment{udt@variantblock}{%
 	\begin{tcolorbox}[
 		enhanced, breakable, frame hidden, interior hidden,
-		overlay = {\draw[udtVariantColor, line width = 0.7pt,
-			decorate, decoration = {brace, amplitude = 3.5pt}]
-			([xshift=2pt]frame.south west) -- ([xshift=2pt]frame.north west);},
-		left = 9pt, right = 0pt, top = 1pt, bottom = 1pt,
+		overlay = {\draw[udtVariantColor, line width = 0.8pt,
+			decorate, decoration = {brace, amplitude = 6pt}]
+			([xshift=4pt]frame.south west) -- ([xshift=4pt]frame.north west);},
+		left = 12pt, right = 0pt, top = 1pt, bottom = 1pt,
 		boxsep = 0pt, before skip = 6pt, after skip = 6pt,
 	]%
 	\renewenvironment{figure}[1][]{\udt@figure@float[H]}{\udt@endfigure@float}%

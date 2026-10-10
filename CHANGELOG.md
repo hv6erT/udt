@@ -12,6 +12,15 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.6.1] — 2026-10-10
+
+### Changed
+- The brace marking shown variant content is more pronounced
+  (amplitude 6pt, line 0.8pt, indent 12pt); at the old size a tall
+  brace read as a straight rule.
+- Documented: inside another box (e.g. a proof) a variant block
+  cannot break across pages — split long content into several blocks.
+
 ## [0.6.0] — 2026-10-10
 
 ### Changed
