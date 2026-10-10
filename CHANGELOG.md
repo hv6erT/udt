@@ -12,6 +12,21 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.6.0] — 2026-10-10
+
+### Changed
+- Variants no longer use the comment package. A variant that is off
+  takes its body as an argument and typesets nothing; one that is on
+  is an ordinary environment. `\begin{…}` and `\end{…}` may now be
+  indented (e.g. inside lists) — with the comment package an indented
+  `\end` was not recognised, which broke the document under MiKTeX.
+- No temporary `.cut` files any more.
+
+### Notes
+- Hidden variant content must have balanced braces and must not
+  contain verbatim material (`\verb`, `verbatim`); shown content has
+  no such restriction.
+
 ## [0.5.2] — 2026-10-10
 
 ### Changed

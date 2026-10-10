@@ -84,17 +84,20 @@
 %  skipped as if it were not in the source.
 %    \newvariant{name1, name2}   % preamble: declare variants
 %    \showvariant{name1}         % preamble: switch them on
-%    \begin{name1}               % \begin and \end each on a
-%      ...                        % line of their own
+%    \begin{name1}
+%      ...
 %    \end{name1}
 %  Shown variant content is set off by a curly brace on the
 %  left and a small indent; figures and tables inside are placed
-%  where written ([H]). The variant extended is predefined. Option full switches on
+%  where written ([H]). \begin and \end may be indented. Hidden
+%  content is read as an argument: it must have balanced braces
+%  and must not contain verbatim material.
+%  The variant extended is predefined. Option full switches on
 %  all variants; so does a job name ending in -ext, so that
 %    pdflatex name  and  pdflatex -jobname=name-ext name
-%  give name.pdf and name-ext.pdf from one source. Hidden content takes no numbers, so numbering
-%  differs between versions; a \ref from outside to a label
-%  inside hidden content gives ??.
+%  give name.pdf and name-ext.pdf from one source. Hidden content
+%  takes no numbers, so numbering differs between versions; a \ref
+%  from outside to a label inside hidden content gives ??.
 %
 %  Build: pdflatex → biber → pdflatex → pdflatex
 %
@@ -112,7 +115,7 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt}[2026/10/10 v0.5.2 Universal Document Template]
+\ProvidesPackage{udt}[2026/10/10 v0.6.0 Universal Document Template]
 
 % ============================================================
 %  OPTIONS
@@ -789,17 +792,18 @@
 
 % ============================================================
 %  VARIANTS — conditional content
-%  One source, several versions of a document. Each variant is
-%  an environment of the comment package: included (typeset as
-%  usual) when the variant is switched on, excluded (skipped
-%  verbatim, so any content is safe) otherwise. The decision is
-%  taken at \begin{document}, so \newvariant and \showvariant
-%  may come in any order in the preamble.
+%  One source, several versions of a document. A variant that is
+%  switched on is an ordinary environment, its content set off by
+%  a brace on the left; a variant that is off takes its body as an
+%  argument and typesets nothing. \begin and \end may be indented
+%  and stand anywhere. The decision is taken at \begin{document},
+%  so \newvariant and \showvariant may come in any order in the
+%  preamble.
 %      \newvariant{supplement, colleague}
 %      \showvariant{supplement}
-%  Option full switches on every variant. Predefined: extended.
+%  Option full, or a job name ending in -ext, switches on every
+%  variant. Predefined: extended.
 % ============================================================
-\RequirePackage{comment}
 % Shown variant content is marked by a curly brace on the left
 % (distinct in shape from the proof rule, also in greyscale) and
 % a small indent. The block may break across pages — each part
@@ -824,8 +828,6 @@
 	\let\udt@figure@float\figure \let\udt@endfigure@float\endfigure
 	\let\udt@table@float\table   \let\udt@endtable@float\endtable
 }
-\def\DefaultCutFileName{\def\CommentCutFile{\jobname.cut}}% one temporary
-\DefaultCutFileName                                     % file per job
 \ExplSyntaxOn
 % A job name ending in -ext (pdflatex -jobname=name-ext name)
 % switches on all variants, as option full does: one source,
@@ -853,7 +855,9 @@
 			}
 	}
 \cs_new_protected:Npn \__udt_variant_show:n #1
-	{ \specialcomment {#1} { \begin{udt@variantblock} } { \end{udt@variantblock} } }
+	{ \DeclareDocumentEnvironment {#1} { } { \begin{udt@variantblock} } { \end{udt@variantblock} } }
+\cs_new_protected:Npn \__udt_variant_hide:n #1
+	{ \DeclareDocumentEnvironment {#1} { +b } { } { \ignorespacesafterend } }
 \NewDocumentCommand \showvariant { m }
 	{ \clist_gput_right:Nn \g__udt_shown_clist {#1} }
 \@onlypreamble \newvariant
@@ -872,7 +876,7 @@
 					{
 						\clist_if_in:NnTF \g__udt_shown_clist {#1}
 							{ \__udt_variant_show:n {#1} }
-							{ \excludecomment {#1} }
+							{ \__udt_variant_hide:n {#1} }
 					}
 			}
 	}
