@@ -4,7 +4,7 @@ A LaTeX package for lab reports and longer texts (scripts, course
 papers, notes). One package with two modes, replacing the former
 `urt.sty` (reports) and `udt.sty` (longer texts).
 
-> **Status:** 0.5.1 — both modes working, interface may still change
+> **Status:** 0.5.2 — both modes working, interface may still change
 > before 1.0.0. Changes and migration notes from `urt.sty` / the old
 > `udt.sty`: see `CHANGELOG.md`.
 

@@ -12,6 +12,14 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.5.2] — 2026-10-10
+
+### Changed
+- Shown variant content is marked by a curly brace on the left instead
+  of a rule, so it cannot be mistaken for the proof rule (also in
+  greyscale print). A block broken across pages gets a brace on each
+  page.
+
 ## [0.5.1] — 2026-10-10
 
 ### Changed

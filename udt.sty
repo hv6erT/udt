@@ -87,8 +87,8 @@
 %    \begin{name1}               % \begin and \end each on a
 %      ...                        % line of their own
 %    \end{name1}
-%  Shown variant content is set off by a thin rule on the left
-%  and a small indent; figures and tables inside are placed
+%  Shown variant content is set off by a curly brace on the
+%  left and a small indent; figures and tables inside are placed
 %  where written ([H]). The variant extended is predefined. Option full switches on
 %  all variants; so does a job name ending in -ext, so that
 %    pdflatex name  and  pdflatex -jobname=name-ext name
@@ -112,7 +112,7 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt}[2026/10/10 v0.5.1 Universal Document Template]
+\ProvidesPackage{udt}[2026/10/10 v0.5.2 Universal Document Template]
 
 % ============================================================
 %  OPTIONS
@@ -186,7 +186,7 @@
 \RequirePackage{caption}
 \RequirePackage{subcaption}
 \RequirePackage{tikz}
-\usetikzlibrary{arrows.meta, positioning, calc, decorations.markings, decorations.pathmorphing, patterns, shapes.geometric}
+\usetikzlibrary{decorations.pathreplacing, arrows.meta, positioning, calc, decorations.markings, decorations.pathmorphing, patterns, shapes.geometric}
 \RequirePackage{pgfplots}
 \pgfplotsset{compat=1.18}
 
@@ -800,16 +800,19 @@
 %  Option full switches on every variant. Predefined: extended.
 % ============================================================
 \RequirePackage{comment}
-% Shown variant content is marked by a thin dark rule on the
-% left and a small indent. The block may break across pages;
-% figures and tables inside it are placed where written ([H]),
-% since a float cannot leave a box.
-\definecolor{udtVariantColor}{RGB}{70,70,70}
+% Shown variant content is marked by a curly brace on the left
+% (distinct in shape from the proof rule, also in greyscale) and
+% a small indent. The block may break across pages — each part
+% gets its own brace; figures and tables inside it are placed
+% where written ([H]), since a float cannot leave a box.
+\definecolor{udtVariantColor}{RGB}{64,64,64}
 \newenvironment{udt@variantblock}{%
 	\begin{tcolorbox}[
 		enhanced, breakable, frame hidden, interior hidden,
-		borderline west = {0.8pt}{0pt}{udtVariantColor},
-		left = 8pt, right = 0pt, top = 0pt, bottom = 0pt,
+		overlay = {\draw[udtVariantColor, line width = 0.7pt,
+			decorate, decoration = {brace, amplitude = 3.5pt}]
+			([xshift=2pt]frame.south west) -- ([xshift=2pt]frame.north west);},
+		left = 9pt, right = 0pt, top = 1pt, bottom = 1pt,
 		boxsep = 0pt, before skip = 6pt, after skip = 6pt,
 	]%
 	\renewenvironment{figure}[1][]{\udt@figure@float[H]}{\udt@endfigure@float}%
