@@ -12,6 +12,15 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.7.0] — 2026-10-10
+
+### Added
+- Unnumbered starred twins of all theorem-like environments
+  (`definition*`, `theorem*`, `lemma*`, `fact*`, `corollary*`,
+  `law*`, `example*`, `remark*`), drawn like the numbered ones.
+  Meant for content of variants (e.g. `extended`), so that numbers
+  stay the same in every version of a document.
+
 ## [0.6.1] — 2026-10-10
 
 ### Changed

@@ -115,7 +115,7 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt}[2026/10/10 v0.6.1 Universal Document Template]
+\ProvidesPackage{udt}[2026/10/10 v0.7.0 Universal Document Template]
 
 % ============================================================
 %  OPTIONS
@@ -726,6 +726,11 @@
 %  (mathematical statements); law, definition, example, remark
 %  upright. Every environment is drawn as a coloured block with
 %  a bar on the left; proof gets a thin grey bar.
+%
+%  Each environment has an unnumbered starred twin (definition*,
+%  theorem*, …) with the same look. Use it for content that does
+%  not appear in every version of a document (variants such as
+%  extended), so that numbers stay the same across versions.
 % ============================================================
 \theoremstyle{plain}
 \ifudt@report
@@ -745,6 +750,18 @@
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{\udt@name@remark}
 
+\theoremstyle{plain}
+\newtheorem*{theorem*}{\udt@name@theorem}
+\newtheorem*{lemma*}{\udt@name@lemma}
+\newtheorem*{fact*}{\udt@name@fact}
+\newtheorem*{corollary*}{\udt@name@corollary}
+\theoremstyle{definition}
+\newtheorem*{law*}{\udt@name@law}
+\newtheorem*{definition*}{\udt@name@definition}
+\newtheorem*{example*}{\udt@name@example}
+\theoremstyle{remark}
+\newtheorem*{remark*}{\udt@name@remark}
+
 \tcbset{
 	udt@block/.style = {
 		enhanced, breakable,
@@ -762,6 +779,14 @@
 \tcolorboxenvironment{corollary} {udt@block=udtFactColor}
 \tcolorboxenvironment{example}   {udt@block=udtExampleColor}
 \tcolorboxenvironment{remark}    {udt@block=udtRemarkColor}
+\tcolorboxenvironment{definition*}{udt@block=udtDefinitionColor}
+\tcolorboxenvironment{theorem*}   {udt@block=udtTheoremColor}
+\tcolorboxenvironment{law*}       {udt@block=udtLawColor}
+\tcolorboxenvironment{lemma*}     {udt@block=udtFactColor}
+\tcolorboxenvironment{fact*}      {udt@block=udtFactColor}
+\tcolorboxenvironment{corollary*} {udt@block=udtFactColor}
+\tcolorboxenvironment{example*}   {udt@block=udtExampleColor}
+\tcolorboxenvironment{remark*}    {udt@block=udtRemarkColor}
 \tcolorboxenvironment{proof}{
 	enhanced, breakable, frame hidden, interior hidden,
 	borderline west = {0.6pt}{0pt}{black!30},
