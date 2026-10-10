@@ -12,6 +12,14 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.5.1] — 2026-10-10
+
+### Changed
+- Shown variant content is set off by a thin dark rule on the left
+  (0.8 pt, colour `udtVariantColor`) and an 8 pt indent; the block
+  breaks across pages. Figures and tables inside it are placed where
+  written (`[H]`), since a float cannot leave a box.
+
 ## [0.5.0] — 2026-10-10
 
 ### Added

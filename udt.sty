@@ -87,7 +87,9 @@
 %    \begin{name1}               % \begin and \end each on a
 %      ...                        % line of their own
 %    \end{name1}
-%  The variant extended is predefined. Option full switches on
+%  Shown variant content is set off by a thin rule on the left
+%  and a small indent; figures and tables inside are placed
+%  where written ([H]). The variant extended is predefined. Option full switches on
 %  all variants; so does a job name ending in -ext, so that
 %    pdflatex name  and  pdflatex -jobname=name-ext name
 %  give name.pdf and name-ext.pdf from one source. Hidden content takes no numbers, so numbering
@@ -110,7 +112,7 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt}[2026/10/10 v0.5.0 Universal Document Template]
+\ProvidesPackage{udt}[2026/10/10 v0.5.1 Universal Document Template]
 
 % ============================================================
 %  OPTIONS
@@ -798,6 +800,27 @@
 %  Option full switches on every variant. Predefined: extended.
 % ============================================================
 \RequirePackage{comment}
+% Shown variant content is marked by a thin dark rule on the
+% left and a small indent. The block may break across pages;
+% figures and tables inside it are placed where written ([H]),
+% since a float cannot leave a box.
+\definecolor{udtVariantColor}{RGB}{70,70,70}
+\newenvironment{udt@variantblock}{%
+	\begin{tcolorbox}[
+		enhanced, breakable, frame hidden, interior hidden,
+		borderline west = {0.8pt}{0pt}{udtVariantColor},
+		left = 8pt, right = 0pt, top = 0pt, bottom = 0pt,
+		boxsep = 0pt, before skip = 6pt, after skip = 6pt,
+	]%
+	\renewenvironment{figure}[1][]{\udt@figure@float[H]}{\udt@endfigure@float}%
+	\renewenvironment{table}[1][]{\udt@table@float[H]}{\udt@endtable@float}%
+}{%
+	\end{tcolorbox}%
+}
+\AtBeginDocument{%
+	\let\udt@figure@float\figure \let\udt@endfigure@float\endfigure
+	\let\udt@table@float\table   \let\udt@endtable@float\endtable
+}
 \def\DefaultCutFileName{\def\CommentCutFile{\jobname.cut}}% one temporary
 \DefaultCutFileName                                     % file per job
 \ExplSyntaxOn
@@ -826,6 +849,8 @@
 					}
 			}
 	}
+\cs_new_protected:Npn \__udt_variant_show:n #1
+	{ \specialcomment {#1} { \begin{udt@variantblock} } { \end{udt@variantblock} } }
 \NewDocumentCommand \showvariant { m }
 	{ \clist_gput_right:Nn \g__udt_shown_clist {#1} }
 \@onlypreamble \newvariant
@@ -840,10 +865,10 @@
 		\clist_map_inline:Nn \g__udt_variants_clist
 			{
 				\legacy_if:nTF { udt@full }
-					{ \includecomment {#1} }
+					{ \__udt_variant_show:n {#1} }
 					{
 						\clist_if_in:NnTF \g__udt_shown_clist {#1}
-							{ \includecomment {#1} }
+							{ \__udt_variant_show:n {#1} }
 							{ \excludecomment {#1} }
 					}
 			}
