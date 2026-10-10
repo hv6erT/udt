@@ -4,7 +4,7 @@ A LaTeX package for lab reports and longer texts (scripts, course
 papers, notes). One package with two modes, replacing the former
 `urt.sty` (reports) and `udt.sty` (longer texts).
 
-> **Status:** 0.3.0 — both modes working, interface may still change
+> **Status:** 0.5.0 — both modes working, interface may still change
 > before 1.0.0. Changes and migration notes from `urt.sty` / the old
 > `udt.sty`: see `CHANGELOG.md`.
 
@@ -22,6 +22,9 @@ papers, notes). One package with two modes, replacing the former
 
 Language (babel) comes from the class options; Polish and English
 strings are provided. Option `chem` adds `mhchem` and chemistry macros.
+Option `full` switches on all variants — environments of conditional
+content declared with `\newvariant` and switched on one by one with
+`\showvariant` (one source, several versions of a document).
 The full interface is documented in the header of `udt.sty`.
 
 ## Build

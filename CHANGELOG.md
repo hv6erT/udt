@@ -12,6 +12,32 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.5.0] — 2026-10-10
+
+### Added
+- Variants (conditional content): one source, several versions of a
+  document. `\newvariant{a, b}` declares environments `a`, `b`;
+  `\showvariant{a}` switches a variant on; content of a variant that
+  is off is skipped as if it were not in the source (comment package,
+  so figures and `verbatim` inside are safe). Both commands go in the
+  preamble, in any order; the decision is taken at
+  `\begin{document}`.
+- Package option `full`: switches on all variants. A job name ending
+  in `-ext` does the same, so `pdflatex name` and
+  `pdflatex -jobname=name-ext name` give `name.pdf` and
+  `name-ext.pdf` from one source.
+- Predefined variant `extended`.
+- Error for a variant name that clashes with an existing command or
+  environment; warning for `\showvariant` of an undeclared variant.
+
+### Notes
+- `\begin{…}` and `\end{…}` of a variant must stand on lines of
+  their own (comment package).
+- The comment package's temporary file is `<jobname>.cut` (one per
+  job, so both versions can be built side by side).
+- Hidden content takes no numbers; a `\ref` from outside to a label
+  inside hidden content gives “??”.
+
 ## [0.4.0] — 2026-09-30
 
 ### Added

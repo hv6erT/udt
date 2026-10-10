@@ -1,6 +1,9 @@
 % udt — example of the script mode
 \documentclass[a4paper, polish, 11pt]{scrartcl}
-\usepackage[script]{udt}
+\usepackage[script]{udt}   % [script, full] — all variants
+
+\newvariant{supplement}   % conditional content, see below
+\showvariant{supplement}  % comment out for the short version
 
 \institution{Politechnika Gdańska, Wydział FTiMS}
 \course{Mechanika klasyczna}
@@ -45,6 +48,20 @@ współrzędna pojawia się dwukrotnie.
 \begin{fact}\label{f:niezm}
 Prawa strona tej równości nie zależy od orientacji osi.
 \end{fact}
+
+\begin{supplement}
+\begin{remark}
+Ta uwaga jest w wariancie \texttt{supplement}: znika, gdy usunie się
+\verb|\showvariant{supplement}|.
+\end{remark}
+\end{supplement}
+
+\begin{extended}
+\begin{aside}[Wariant extended]
+Blok widoczny tylko z opcją \texttt{full} albo po
+\verb|\showvariant{extended}|.
+\end{aside}
+\end{extended}
 
 Zob. \cref{def:I}, \cref{eq:I}, \cref{tw:slad} oraz \cref{sec:def,sec:slad}.
 

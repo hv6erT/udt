@@ -78,6 +78,22 @@
 %    \Eo              standard potential E⦵
 %    \redox{Ox}{Red}  redox couple Ox/Red
 %
+%  Variants (conditional content): one source, several versions
+%  of the document. A variant is an environment whose content is
+%  typeset only when the variant is switched on; otherwise it is
+%  skipped as if it were not in the source.
+%    \newvariant{name1, name2}   % preamble: declare variants
+%    \showvariant{name1}         % preamble: switch them on
+%    \begin{name1}               % \begin and \end each on a
+%      ...                        % line of their own
+%    \end{name1}
+%  The variant extended is predefined. Option full switches on
+%  all variants; so does a job name ending in -ext, so that
+%    pdflatex name  and  pdflatex -jobname=name-ext name
+%  give name.pdf and name-ext.pdf from one source. Hidden content takes no numbers, so numbering
+%  differs between versions; a \ref from outside to a label
+%  inside hidden content gives ??.
+%
 %  Build: pdflatex → biber → pdflatex → pdflatex
 %
 %  Copyright (C) 2026 Hubert Rączkiewicz
@@ -94,14 +110,16 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt}[2026/09/30 v0.4.0 Universal Document Template]
+\ProvidesPackage{udt}[2026/10/10 v0.5.0 Universal Document Template]
 
 % ============================================================
 %  OPTIONS
 % ============================================================
 \newif\ifudt@chem
 \newif\ifudt@report
+\newif\ifudt@full
 \DeclareOption{chem}{\udt@chemtrue}
+\DeclareOption{full}{\udt@fulltrue}
 \DeclareOption{report}{\udt@reporttrue}
 \DeclareOption{script}{\udt@reportfalse}
 \DeclareOption*{\PackageWarning{udt}{Unknown option `\CurrentOption'}}
@@ -766,5 +784,71 @@
 }{%
 	\end{tcolorbox}%
 }
+
+% ============================================================
+%  VARIANTS — conditional content
+%  One source, several versions of a document. Each variant is
+%  an environment of the comment package: included (typeset as
+%  usual) when the variant is switched on, excluded (skipped
+%  verbatim, so any content is safe) otherwise. The decision is
+%  taken at \begin{document}, so \newvariant and \showvariant
+%  may come in any order in the preamble.
+%      \newvariant{supplement, colleague}
+%      \showvariant{supplement}
+%  Option full switches on every variant. Predefined: extended.
+% ============================================================
+\RequirePackage{comment}
+\def\DefaultCutFileName{\def\CommentCutFile{\jobname.cut}}% one temporary
+\DefaultCutFileName                                     % file per job
+\ExplSyntaxOn
+% A job name ending in -ext (pdflatex -jobname=name-ext name)
+% switches on all variants, as option full does: one source,
+% two PDFs — name.pdf and name-ext.pdf.
+\str_set:Nx \l_tmpa_str { \c_sys_jobname_str }
+\str_remove_all:Nn \l_tmpa_str { " }
+\str_if_eq:eeT { \str_range:Nnn \l_tmpa_str { -4 } { -1 } } { -ext }
+	{ \legacy_if_set_true:n { udt@full } }
+\clist_new:N \g__udt_variants_clist
+\clist_new:N \g__udt_shown_clist
+\NewDocumentCommand \newvariant { m }
+	{
+		\clist_map_inline:nn {#1}
+			{
+				\clist_if_in:NnF \g__udt_variants_clist {##1}
+					{
+						\cs_if_exist:cT {##1}
+							{
+								\PackageError {udt}
+									{ Variant~`##1'~clashes~with~an~existing~command~or~environment }
+									{ Choose~another~name~for~the~variant. }
+							}
+						\clist_gput_right:Nn \g__udt_variants_clist {##1}
+					}
+			}
+	}
+\NewDocumentCommand \showvariant { m }
+	{ \clist_gput_right:Nn \g__udt_shown_clist {#1} }
+\@onlypreamble \newvariant
+\@onlypreamble \showvariant
+\AtBeginDocument
+	{
+		\clist_map_inline:Nn \g__udt_shown_clist
+			{
+				\clist_if_in:NnF \g__udt_variants_clist {#1}
+					{ \PackageWarningNoLine {udt} { \token_to_str:N \showvariant :~unknown~variant~`#1' } }
+			}
+		\clist_map_inline:Nn \g__udt_variants_clist
+			{
+				\legacy_if:nTF { udt@full }
+					{ \includecomment {#1} }
+					{
+						\clist_if_in:NnTF \g__udt_shown_clist {#1}
+							{ \includecomment {#1} }
+							{ \excludecomment {#1} }
+					}
+			}
+	}
+\ExplSyntaxOff
+\newvariant{extended}
 
 \makeatother
