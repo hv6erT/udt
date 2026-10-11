@@ -115,7 +115,7 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt}[2026/10/10 v0.7.1 Universal Document Template]
+\ProvidesPackage{udt}[2026/10/11 v0.7.2 Universal Document Template]
 
 % ============================================================
 %  OPTIONS
@@ -209,6 +209,7 @@
 \RequirePackage{needspace}
 \RequirePackage{multicol}
 \RequirePackage{etoolbox}
+\RequirePackage{zref-savepos,zref-abspage}
 
 % ============================================================
 %  PACKAGES — page layout, typography
@@ -787,12 +788,108 @@
 \tcolorboxenvironment{corollary*} {udt@block=udtFactColor}
 \tcolorboxenvironment{example*}   {udt@block=udtExampleColor}
 \tcolorboxenvironment{remark*}    {udt@block=udtRemarkColor}
-\tcolorboxenvironment{proof}{
-	enhanced, breakable, frame hidden, interior hidden,
-	borderline west = {0.6pt}{0pt}{black!30},
-	left = 7pt, right = 0pt, top = 0pt, bottom = 0pt,
-	before skip = 4pt, after skip = 8pt,
+% proof — thin grey bar on the left. The proof is not a box: the
+% bar is drawn at shipout from positions saved in the .aux file
+% (zref-savepos; it appears after the second run). Footnotes in a
+% proof therefore go to the foot of the page, and blocks inside a
+% proof break across pages like anywhere else.
+\zref@newlist{udt@pf}
+\zref@newprop{udt@pfshift}[0]{0}
+\zref@addprops{udt@pf}{posx,posy,abspage,udt@pfshift}
+\newcount\udt@pf@n
+\newcount\udt@pf@i
+% #1 = b (begin) or e (end) of the current proof
+\newcommand*\udt@pf@mark[1]{%
+	\zref@savepos
+	\edef\udt@tmp{\noexpand\zref@labelbylist{udt@pf@\udt@pf@id @#1}{udt@pf}}%
+	\udt@tmp
 }
+\newenvironment{udt@proofbar}{%
+	\par
+	\global\advance\udt@pf@n\@ne
+	\edef\udt@pf@id{\the\udt@pf@n}%
+	\edef\udt@tmp{\noexpand\zref@setcurrent{udt@pfshift}{\number\@totalleftmargin}}%
+	\udt@tmp
+	\list{}{\leftmargin 7\p@ \labelwidth\z@ \itemindent\z@
+		\topsep 4\p@ \partopsep\z@ \itemsep\z@ \parsep\parskip}%
+	\item\relax
+	\udt@pf@mark{b}\nobreak
+}{%
+	\endlist
+	\addvspace{8\p@}%
+}
+% End mark: at the bottom of the last line, before the space that
+% follows a closing list or display.
+\newcommand*\udt@pf@endmark{%
+	\ifhmode
+		\ifnum\lastnodetype=\m@ne
+			\par\udt@pf@vmark
+		\else
+			\lower\dp\strutbox\hbox{\udt@pf@mark{e}}%
+		\fi
+	\else
+		\udt@pf@vmark
+	\fi
+}
+\newcommand*\udt@pf@vmark{%
+	\ifdim\lastskip>\z@
+		\skip@\lastskip \vskip-\lastskip
+		\udt@pf@mark{e}%
+		\vskip\skip@
+	\else
+		\udt@pf@mark{e}%
+	\fi
+}
+\AddToHook{env/proof/before}{\begin{udt@proofbar}}
+\AddToHook{env/proof/end}{\udt@pf@endmark}
+\AddToHook{env/proof/after}{\end{udt@proofbar}}
+\newcommand*\udt@pf@get[2]{\zref@extractdefault{#1}{#2}{0}}
+\newcommand*\udt@pf@drawall{%
+	\global\udt@pf@i\@ne
+	\udt@pf@loop
+}
+\newcommand*\udt@pf@loop{%
+	\zref@ifrefundefined{udt@pf@\the\udt@pf@i @b}{}{%
+		\udt@pf@drawone{udt@pf@\the\udt@pf@i @b}{udt@pf@\the\udt@pf@i @e}%
+		\global\advance\udt@pf@i\@ne
+		\udt@pf@loop
+	}%
+}
+% Bar from the begin mark (or the top of the text area) to the end
+% mark (or the bottom of the text area) on every page of the proof.
+\newcommand*\udt@pf@drawone[2]{%
+	\begingroup
+	\@tempcnta=\udt@pf@get{#1}{abspage}\relax
+	\@tempcntb=\udt@pf@get{#2}{abspage}\relax
+	\ifnum\@tempcntb<\@tempcnta \@tempcntb=\@tempcnta \fi
+	\ifnum\ReadonlyShipoutCounter<\@tempcnta\else
+	\ifnum\ReadonlyShipoutCounter>\@tempcntb\else
+		\dimen@=\paperheight
+		\advance\dimen@ -1in \advance\dimen@ -\voffset
+		\advance\dimen@ -\topmargin \advance\dimen@ -\headheight
+		\advance\dimen@ -\headsep
+		\dimen@ii=\dimen@ \advance\dimen@ii -\textheight
+		\ifnum\ReadonlyShipoutCounter=\@tempcnta
+			\dimen@=\udt@pf@get{#1}{posy}sp\relax
+		\fi
+		\ifnum\ReadonlyShipoutCounter=\@tempcntb
+			\zref@ifrefundefined{#2}{}{\dimen@ii=\udt@pf@get{#2}{posy}sp\relax}%
+		\fi
+		\@tempdima=\udt@pf@get{#1}{posx}sp\relax
+		\advance\@tempdima \udt@pf@get{#1}{udt@pfshift}sp\relax
+		\ifdim\dimen@>\dimen@ii
+			% values expanded now: \put uses scratch registers itself
+			\edef\udt@tmp{\noexpand\put(0,0){\hbox to\z@{\kern\the\@tempdima
+				\lower\the\dimexpr\paperheight-\dimen@ii\relax\hbox{%
+					\noexpand\color{black!30}\vrule width 0.6pt
+					height \the\dimexpr\dimen@-\dimen@ii\relax\space depth\z@}%
+				\hss}}}%
+			\udt@tmp
+		\fi
+	\fi\fi
+	\endgroup
+}
+\AddToHook{shipout/background}{\udt@pf@drawall}
 
 % ============================================================
 %  ENVIRONMENT aside
@@ -835,7 +932,7 @@
 % then stays open at the break (no tick at the bottom of the first
 % part nor at the top of the next); figures and tables inside it are placed
 % where written ([H]), since a float cannot leave a box. Inside
-% another box (e.g. a proof) the block cannot break, so long
+% another box (e.g. a theorem) the block cannot break, so long
 % content there is better split into several shorter blocks.
 \definecolor{udtVariantColor}{RGB}{64,64,64}
 \tikzset{udt@bracket/.style = {udtVariantColor, line width = 0.8pt,

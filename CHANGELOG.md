@@ -12,6 +12,16 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.7.2] — 2026-10-11
+
+### Fixed
+- Footnotes in a proof go to the foot of the page. The proof is no
+  longer a box: its grey bar is drawn at shipout from positions
+  saved in the `.aux` file (zref-savepos), so it appears after the
+  second run.
+- Blocks inside a proof (e.g. shown variant content) break across
+  pages like anywhere else.
+
 ## [0.7.1] — 2026-10-10
 
 ### Changed
