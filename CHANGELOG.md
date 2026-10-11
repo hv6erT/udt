@@ -12,6 +12,12 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.7.3] — 2026-10-11
+
+### Changed
+- The proof name („Dowód.”) stands on a line of its own; the proof
+  starts on the next line, also when it starts with a list.
+
 ## [0.7.2] — 2026-10-11
 
 ### Fixed

@@ -115,7 +115,7 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt}[2026/10/11 v0.7.2 Universal Document Template]
+\ProvidesPackage{udt}[2026/10/11 v0.7.3 Universal Document Template]
 
 % ============================================================
 %  OPTIONS
@@ -839,6 +839,17 @@
 	\else
 		\udt@pf@mark{e}%
 	\fi
+}
+% The proof name stands on a line of its own; the proof starts
+% on the next line (also when it starts with a list).
+\renewenvironment{proof}[1][\proofname]{\par
+	\pushQED{\qed}%
+	\normalfont \topsep6\p@\@plus6\p@\relax
+	\trivlist
+	\item[\hskip\labelsep\itshape #1\@addpunct{.}]\mbox{}\par\nobreak
+	\ignorespaces
+}{%
+	\popQED\endtrivlist\@endpefalse
 }
 \AddToHook{env/proof/before}{\begin{udt@proofbar}}
 \AddToHook{env/proof/end}{\udt@pf@endmark}
