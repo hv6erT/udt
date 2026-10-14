@@ -17,8 +17,9 @@ versioning: [SemVer](https://semver.org/).
 ### Fixed
 - The grey bar of a proof that continues on a new page no longer
   runs through floats at the top of that page, nor through
-  footnotes and floats at its bottom. Pages made only of floats
-  get no bar.
+  footnotes and floats at its bottom: the output routine marks
+  the top and bottom of the main text of every page. Pages made
+  only of floats get no bar.
 
 ## [0.7.3] — 2026-10-11
 

@@ -866,70 +866,59 @@
 		\udt@pf@loop
 	}%
 }
-% Text region of the page being shipped out: the output routine
-% records how much of the text area the top floats take
-% (\udt@pf@ftop) and how much the footnotes and bottom floats take
-% (\udt@pf@fbot); a page made only of floats is flagged and gets
-% no bar. The wrappers are installed at \begin{document}, after
-% any package that redefines these output macros.
-\newdimen\udt@pf@ftop
-\newdimen\udt@pf@fbot
-\newdimen\udt@pf@h
-\newif\ifudt@pf@fpage
+% Text region of every page: the output routine puts position marks
+% at the top and at the bottom of the main text of each page, so
+% the bar of a proof continued on that page never runs through
+% top floats, footnotes or bottom floats. A page made only of
+% floats has no marks and gets no bar. The box keeps its height
+% and glue setting; the kern restores the original depth. The
+% wrapper is installed at \begin{document}, after any package that
+% redefines \@makecol.
+\newdimen\udt@pf@d
+\zref@newlist{udt@pg}
+\zref@addprops{udt@pg}{posy}
+\newcommand*\udt@pf@pgmark[1]{%
+	\zref@savepos
+	\edef\udt@tmp{\noexpand\zref@labelbylist{udt@pg@\udt@pf@pg @#1}{udt@pg}}%
+	\udt@tmp
+}
 \AtBeginDocument{%
 	\let\udt@pf@orig@makecol\@makecol
 	\def\@makecol{%
-		\global\udt@pf@fpagefalse
-		\global\udt@pf@ftop\z@
-		\ifvoid\footins
-			\global\udt@pf@fbot\z@
-		\else
-			\global\udt@pf@fbot\dimexpr\skip\footins+\ht\footins+\dp\footins\relax
-		\fi
+		\edef\udt@pf@pg{\number\numexpr\ReadonlyShipoutCounter+1\relax}%
+		\udt@pf@d\dp\@cclv
+		\setbox\@cclv\vbox to\ht\@cclv{%
+			\udt@pf@pgmark{t}\unvbox\@cclv\udt@pf@pgmark{b}\kern-\udt@pf@d}%
 		\udt@pf@orig@makecol
 	}%
-	\let\udt@pf@orig@cflt\@cflt
-	\def\@cflt{%
-		\global\udt@pf@h\ht\@outputbox
-		\udt@pf@orig@cflt
-		\global\udt@pf@ftop\dimexpr\ht\@outputbox-\udt@pf@h\relax
-	}%
-	\let\udt@pf@orig@cflb\@cflb
-	\def\@cflb{%
-		\global\udt@pf@h\dimexpr\ht\@outputbox+\dp\@outputbox\relax
-		\udt@pf@orig@cflb
-		\global\advance\udt@pf@fbot\dimexpr\ht\@outputbox+\dp\@outputbox-\udt@pf@h\relax
-	}%
-	\let\udt@pf@orig@makefcolumn\@makefcolumn
-	\def\@makefcolumn{\global\udt@pf@fpagetrue\udt@pf@orig@makefcolumn}%
 }
-% Bar from the begin mark (or the top of the text below the top
-% floats) to the end mark (or the bottom of the text above the
-% footnotes and bottom floats) on every page of the proof.
+% Bar from the begin mark (or the top of the main text) to the end
+% mark (or the bottom of the main text) on every page of the proof.
 \newcommand*\udt@pf@drawone[2]{%
 	\begingroup
 	\@tempcnta=\udt@pf@get{#1}{abspage}\relax
 	\@tempcntb=\udt@pf@get{#2}{abspage}\relax
 	\ifnum\@tempcntb<\@tempcnta \@tempcntb=\@tempcnta \fi
-	\ifudt@pf@fpage \@tempcnta=\@ne \@tempcntb=\z@ \fi
 	\ifnum\ReadonlyShipoutCounter<\@tempcnta\else
 	\ifnum\ReadonlyShipoutCounter>\@tempcntb\else
-		\dimen@=\paperheight
-		\advance\dimen@ -1in \advance\dimen@ -\voffset
-		\advance\dimen@ -\topmargin \advance\dimen@ -\headheight
-		\advance\dimen@ -\headsep
-		\dimen@ii=\dimen@ \advance\dimen@ii -\textheight
-		\advance\dimen@ -\udt@pf@ftop
-		\advance\dimen@ii \udt@pf@fbot
+		\@tempswatrue
+		\edef\udt@pf@pg{\the\ReadonlyShipoutCounter}%
 		\ifnum\ReadonlyShipoutCounter=\@tempcnta
 			\dimen@=\udt@pf@get{#1}{posy}sp\relax
+		\else
+			\zref@ifrefundefined{udt@pg@\udt@pf@pg @t}{\@tempswafalse}%
+				{\dimen@=\udt@pf@get{udt@pg@\udt@pf@pg @t}{posy}sp\relax}%
 		\fi
 		\ifnum\ReadonlyShipoutCounter=\@tempcntb
-			\zref@ifrefundefined{#2}{}{\dimen@ii=\udt@pf@get{#2}{posy}sp\relax}%
+			\zref@ifrefundefined{#2}{\@tempswafalse}%
+				{\dimen@ii=\udt@pf@get{#2}{posy}sp\relax}%
+		\else
+			\zref@ifrefundefined{udt@pg@\udt@pf@pg @b}{\@tempswafalse}%
+				{\dimen@ii=\udt@pf@get{udt@pg@\udt@pf@pg @b}{posy}sp\relax}%
 		\fi
 		\@tempdima=\udt@pf@get{#1}{posx}sp\relax
 		\advance\@tempdima \udt@pf@get{#1}{udt@pfshift}sp\relax
-		\ifdim\dimen@>\dimen@ii
+		\if@tempswa\ifdim\dimen@>\dimen@ii
 			% values expanded now: \put uses scratch registers itself
 			\edef\udt@tmp{\noexpand\put(0,0){\hbox to\z@{\kern\the\@tempdima
 				\lower\the\dimexpr\paperheight-\dimen@ii\relax\hbox{%
@@ -937,7 +926,7 @@
 					height \the\dimexpr\dimen@-\dimen@ii\relax\space depth\z@}%
 				\hss}}}%
 			\udt@tmp
-		\fi
+		\fi\fi
 	\fi\fi
 	\endgroup
 }
