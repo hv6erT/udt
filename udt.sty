@@ -115,7 +115,7 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt}[2026/10/11 v0.7.3 Universal Document Template]
+\ProvidesPackage{udt}[2026/10/14 v0.7.4 Universal Document Template]
 
 % ============================================================
 %  OPTIONS
@@ -866,13 +866,52 @@
 		\udt@pf@loop
 	}%
 }
-% Bar from the begin mark (or the top of the text area) to the end
-% mark (or the bottom of the text area) on every page of the proof.
+% Text region of the page being shipped out: the output routine
+% records how much of the text area the top floats take
+% (\udt@pf@ftop) and how much the footnotes and bottom floats take
+% (\udt@pf@fbot); a page made only of floats is flagged and gets
+% no bar. The wrappers are installed at \begin{document}, after
+% any package that redefines these output macros.
+\newdimen\udt@pf@ftop
+\newdimen\udt@pf@fbot
+\newdimen\udt@pf@h
+\newif\ifudt@pf@fpage
+\AtBeginDocument{%
+	\let\udt@pf@orig@makecol\@makecol
+	\def\@makecol{%
+		\global\udt@pf@fpagefalse
+		\global\udt@pf@ftop\z@
+		\ifvoid\footins
+			\global\udt@pf@fbot\z@
+		\else
+			\global\udt@pf@fbot\dimexpr\skip\footins+\ht\footins+\dp\footins\relax
+		\fi
+		\udt@pf@orig@makecol
+	}%
+	\let\udt@pf@orig@cflt\@cflt
+	\def\@cflt{%
+		\global\udt@pf@h\ht\@outputbox
+		\udt@pf@orig@cflt
+		\global\udt@pf@ftop\dimexpr\ht\@outputbox-\udt@pf@h\relax
+	}%
+	\let\udt@pf@orig@cflb\@cflb
+	\def\@cflb{%
+		\global\udt@pf@h\dimexpr\ht\@outputbox+\dp\@outputbox\relax
+		\udt@pf@orig@cflb
+		\global\advance\udt@pf@fbot\dimexpr\ht\@outputbox+\dp\@outputbox-\udt@pf@h\relax
+	}%
+	\let\udt@pf@orig@makefcolumn\@makefcolumn
+	\def\@makefcolumn{\global\udt@pf@fpagetrue\udt@pf@orig@makefcolumn}%
+}
+% Bar from the begin mark (or the top of the text below the top
+% floats) to the end mark (or the bottom of the text above the
+% footnotes and bottom floats) on every page of the proof.
 \newcommand*\udt@pf@drawone[2]{%
 	\begingroup
 	\@tempcnta=\udt@pf@get{#1}{abspage}\relax
 	\@tempcntb=\udt@pf@get{#2}{abspage}\relax
 	\ifnum\@tempcntb<\@tempcnta \@tempcntb=\@tempcnta \fi
+	\ifudt@pf@fpage \@tempcnta=\@ne \@tempcntb=\z@ \fi
 	\ifnum\ReadonlyShipoutCounter<\@tempcnta\else
 	\ifnum\ReadonlyShipoutCounter>\@tempcntb\else
 		\dimen@=\paperheight
@@ -880,6 +919,8 @@
 		\advance\dimen@ -\topmargin \advance\dimen@ -\headheight
 		\advance\dimen@ -\headsep
 		\dimen@ii=\dimen@ \advance\dimen@ii -\textheight
+		\advance\dimen@ -\udt@pf@ftop
+		\advance\dimen@ii \udt@pf@fbot
 		\ifnum\ReadonlyShipoutCounter=\@tempcnta
 			\dimen@=\udt@pf@get{#1}{posy}sp\relax
 		\fi

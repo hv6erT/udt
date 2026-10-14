@@ -12,6 +12,14 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.7.4] — 2026-10-14
+
+### Fixed
+- The grey bar of a proof that continues on a new page no longer
+  runs through floats at the top of that page, nor through
+  footnotes and floats at its bottom. Pages made only of floats
+  get no bar.
+
 ## [0.7.3] — 2026-10-11
 
 ### Changed
