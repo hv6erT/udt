@@ -12,6 +12,15 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.7.5] — 2026-10-15
+
+### Fixed
+- Footnotes inside blocks (theorems, definitions, facts, examples,
+  remarks, asides, variant blocks) go to the foot of the page and
+  are numbered together with the other footnotes, instead of
+  staying at the bottom of the box numbered a, b, ... (package
+  footnotehyper, savenotes around every block).
+
 ## [0.7.4] — 2026-10-14
 
 ### Fixed
