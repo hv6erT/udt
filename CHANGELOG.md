@@ -12,6 +12,14 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.8.0] — 2026-10-15
+
+### Added
+- Option `plain`: theorem-like environments without coloured blocks
+  (plain amsthm look, as in the package from the “Ogniwa
+  elektrochemiczne” project); `aside` becomes smaller type set off
+  by space, with a bold heading.
+
 ## [0.7.5] — 2026-10-15
 
 ### Fixed

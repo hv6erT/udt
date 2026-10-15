@@ -7,7 +7,7 @@
 %
 %  Usage:
 %    \documentclass[a4paper, polish, 11pt]{scrartcl}
-%    \usepackage[report]{udt}       % or [script]; plus chem
+%    \usepackage[report]{udt}       % or [script]; plus chem, plain
 %    \addbibresource{references.bib}   % optional
 %
 %  Modes:
@@ -73,6 +73,9 @@
 %  Automatic brackets: \ab(...) instead of physics' \qty(...);
 %  \qty is siunitx's quantity command.
 %
+%  Option plain: theorem-like environments and aside without
+%  coloured blocks (plain amsthm look; aside in smaller type).
+%
 %  Option chem: mhchem (\ce) and the macros
 %    \std             superscript of the standard state (⦵)
 %    \Eo              standard potential E⦵
@@ -115,7 +118,7 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt}[2026/10/15 v0.7.5 Universal Document Template]
+\ProvidesPackage{udt}[2026/10/15 v0.8.0 Universal Document Template]
 
 % ============================================================
 %  OPTIONS
@@ -123,8 +126,10 @@
 \newif\ifudt@chem
 \newif\ifudt@report
 \newif\ifudt@full
+\newif\ifudt@plain
 \DeclareOption{chem}{\udt@chemtrue}
 \DeclareOption{full}{\udt@fulltrue}
+\DeclareOption{plain}{\udt@plaintrue}
 \DeclareOption{report}{\udt@reporttrue}
 \DeclareOption{script}{\udt@reportfalse}
 \DeclareOption*{\PackageWarning{udt}{Unknown option `\CurrentOption'}}
@@ -787,6 +792,9 @@
 	\DeclareHookRule{env/\udt@env/before}{udt/notes}{before}{udt}%
 	\DeclareHookRule{env/\udt@env/after}{udt/notes}{after}{udt}%
 }
+% option plain: no coloured blocks, the environments keep the
+% plain amsthm look (as in the first versions of the package)
+\ifudt@plain\else
 \tcolorboxenvironment{definition}{udt@block=udtDefinitionColor}
 \tcolorboxenvironment{theorem}   {udt@block=udtTheoremColor}
 \tcolorboxenvironment{law}       {udt@block=udtLawColor}
@@ -803,6 +811,7 @@
 \tcolorboxenvironment{corollary*} {udt@block=udtFactColor}
 \tcolorboxenvironment{example*}   {udt@block=udtExampleColor}
 \tcolorboxenvironment{remark*}    {udt@block=udtRemarkColor}
+\fi
 % proof — thin grey bar on the left. The proof is not a box: the
 % bar is drawn at shipout from positions saved in the .aux file
 % (zref-savepos; it appears after the second run). Footnotes in a
@@ -954,6 +963,15 @@
 %  type, grey block:
 %      \begin{aside}[Who was Steiner?] ... \end{aside}
 % ============================================================
+\ifudt@plain
+% option plain: smaller type set off by space, heading in bold
+\NewDocumentEnvironment{aside}{o}{%
+	\par\medskip\begingroup\small
+	\noindent{\bfseries\udt@name@aside\IfValueT{#1}{: #1}}\par\nopagebreak\smallskip
+}{%
+	\par\endgroup\medskip
+}
+\else
 \NewDocumentEnvironment{aside}{o}{%
 	\begin{tcolorbox}[
 		enhanced, breakable,
@@ -967,6 +985,7 @@
 }{%
 	\end{tcolorbox}%
 }
+\fi
 
 % ============================================================
 %  VARIANTS — conditional content
