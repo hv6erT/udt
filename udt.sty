@@ -30,8 +30,9 @@
 %    \group{Programme, year, group}
 %    \title{Title}
 %    \subtitle{Subtitle}
-%    \author{Full name}
-%    \studentid{Student ID number}
+%    \author{Full name}             % several: \author{A \and B}
+%    \studentid{Student ID number}  % several: \studentid{1 \and 2},
+%                                    % paired with the authors in order
 %    \supervisor{Supervisor's name}
 %    \place{City}
 %    \date{Submission date}          % default: \today
@@ -118,7 +119,7 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt}[2026/10/15 v0.8.0 Universal Document Template]
+\ProvidesPackage{udt}[2026/10/25 v0.9.0 Universal Document Template]
 
 % ============================================================
 %  OPTIONS
@@ -278,6 +279,38 @@
 \udt@newfield{place}
 \udt@newfield{exercise}
 \udt@newfield{experimentdate}
+
+% ------------------------------------------------------------
+%  Several authors: \author{A \and B}, \studentid{1 \and 2}.
+%  \udt@authors{<id format>} sets the authors one after another,
+%  separated by a thin vertical rule; each author is followed by
+%  their student ID (if given), formatted by the one-argument
+%  macro <id format>. IDs are paired with the authors in order.
+% ------------------------------------------------------------
+\newcommand*{\udt@authorsep}{%
+	\unskip\hspace{0.8em}\rule[-0.3ex]{0.4pt}{2.4ex}\hspace{0.8em}\ignorespaces}
+\ExplSyntaxOn
+\seq_new:N \l__udt_authors_seq
+\seq_new:N \l__udt_ids_seq
+\tl_new:N \l__udt_id_tl
+\cs_new_protected:Npn \udt@authors #1
+	{
+		\exp_args:NNno \seq_set_split:Nnn \l__udt_authors_seq { \and } { \@author }
+		\exp_args:NNno \seq_set_split:Nnn \l__udt_ids_seq { \and } { \udt@studentid }
+		\seq_map_indexed_inline:Nn \l__udt_authors_seq
+			{
+				\int_compare:nNnT {##1} > { 1 } { \udt@authorsep }
+				\tl_set:Ne \l__udt_id_tl { \seq_item:Nn \l__udt_ids_seq {##1} }
+				\mbox
+					{
+						##2
+						\tl_if_blank:VF \l__udt_id_tl { #1 { \l__udt_id_tl } }
+					}
+			}
+	}
+\ExplSyntaxOff
+\newcommand*{\udt@id@report}[1]{\ [\udt@name@studentid: #1]}
+\newcommand*{\udt@id@script}[1]{\ {\normalsize(\udt@name@studentid\ #1)}}
 
 % ============================================================
 %  LOCALIZATION
@@ -581,9 +614,7 @@
 		{\normalsize\udt@name@report\ \udt@exercise}\\[0.8em]}%
 	{\fontsize{20}{24}\selectfont\bfseries\MakeUppercase{\@title}}\\[0.8em]
 	{\small
-		\textit{\@author}%
-		\ifdefempty{\udt@studentid}{}{%
-			\ \textit{[\udt@name@studentid: \udt@studentid]}}\\
+		{\itshape\udt@authors\udt@id@report}\\
 		\ifdefempty{\udt@supervisor}{}{%
 			\hspace*{2em}\udt@name@supervisedby\ \textit{\udt@supervisor}\\[0.4em]}%
 		\udt@name@submitted{\@date}{\udt@experimentdate}%
@@ -613,9 +644,7 @@
 		\vspace{0.5em}%
 		{\large\itshape\@subtitle\par}}%
 	\vspace{1.6em}
-	{\large\@author
-		\ifdefempty{\udt@studentid}{}{%
-			\ {\normalsize(\udt@name@studentid\ \udt@studentid)}}\par}
+	{\large\udt@authors\udt@id@script\par}
 	\ifdefempty{\udt@supervisor}{}{%
 		\vspace{0.3em}%
 		{\normalsize\udt@name@supervisor: \udt@supervisor\par}}%

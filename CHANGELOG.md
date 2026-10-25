@@ -12,6 +12,15 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.9.0] — 2026-10-25
+
+### Added
+- Several authors: `\author{A \and B}` together with
+  `\studentid{1 \and 2}`, the IDs paired with the authors in order.
+  The title block (report and script) sets the authors on one line,
+  separated by a thin vertical rule; the PDF metadata lists them
+  all.
+
 ## [0.8.0] — 2026-10-15
 
 ### Added
