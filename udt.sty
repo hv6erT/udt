@@ -119,7 +119,7 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt}[2026/10/25 v0.9.0 Universal Document Template]
+\ProvidesPackage{udt}[2026/10/25 v0.9.1 Universal Document Template]
 
 % ============================================================
 %  OPTIONS
@@ -607,6 +607,10 @@
 %          running head); the text — usually the abstract —
 %          follows directly.
 % ============================================================
+% The experiment date is passed by value: \udt@name@submitted tests
+% its argument with \ifblank, which would see the macro name, not
+% its (possibly empty) contents.
+\newcommand*{\udt@submitted}[1]{\udt@name@submitted{\@date}{#1}}
 \newcommand{\udt@maketitle@report}{%
 	\thispagestyle{empty}%
 	\noindent
@@ -617,7 +621,7 @@
 		{\itshape\udt@authors\udt@id@report}\\
 		\ifdefempty{\udt@supervisor}{}{%
 			\hspace*{2em}\udt@name@supervisedby\ \textit{\udt@supervisor}\\[0.4em]}%
-		\udt@name@submitted{\@date}{\udt@experimentdate}%
+		\expandafter\udt@submitted\expandafter{\udt@experimentdate}%
 	}\\[0.6em]
 	\noindent\rule{\textwidth}{0.4pt}\\[1em]
 }

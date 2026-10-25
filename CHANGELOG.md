@@ -12,6 +12,13 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.9.1] — 2026-10-25
+
+### Fixed
+- Report title block: without `\experimentdate` the line no longer
+  ends with a dangling “na podstawie ćwiczenia wykonanego” (the date
+  was tested by its macro name instead of its contents).
+
 ## [0.9.0] — 2026-10-25
 
 ### Added
