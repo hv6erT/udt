@@ -1,0 +1,185 @@
+% ============================================================
+%  udt-report.sty — Universal Document Template, report mode
+%
+%  Two-column documents with a header bar: lab reports, and also
+%  other short texts of that shape, e.g. lecture summaries.
+%  Loads udt-core.sty (common part) and passes the options
+%  plain, chem, full on to it.
+%
+%  Usage:
+%    \documentclass[a4paper, polish, 11pt]{scrartcl}
+%    \usepackage{udt-report}           % options: plain, chem, full
+%    \addbibresource{references.bib}   % optional
+%
+%  Layout: header bar, two-column body after \begincolumns,
+%  unnumbered sections, equations, floats and theorem-like
+%  environments numbered 1, 2, ... through the whole document;
+%  figures and tables are placed here ([H]) so they work inside
+%  columns, figure*/table* span both columns.
+%
+%  Fields printed in the header bar (all optional except \title
+%  and \author; an empty field leaves no trace):
+%    \doctype{Kind of document}  % default: “Report on exercise”
+%                                %   (“Sprawozdanie z ćwiczenia”)
+%    \exercise{Number}           % appended to the kind of document
+%    \title, \author, \studentid, \supervisor
+%    \date{Submission date}      % \date{} — no “Submitted” line
+%    \experimentdate{Date}       % “… experiment performed …”
+%  The line above the title (and the running head) reads
+%  “<doctype> <exercise>”; without \doctype the default kind is
+%  used only together with a number. Examples:
+%    \exercise{F-10}                       → Sprawozdanie z ćwiczenia F-10
+%    \doctype{Streszczenie wykładu}
+%    \exercise{3}                          → Streszczenie wykładu 3
+%    \doctype{Notatki}                     → Notatki
+%  \institution, \course, \group and \place are not printed.
+%
+%  Document structure:
+%    \maketitle
+%    \begin{preface}  ... \end{preface}    % optional, full width
+%    \begin{abstract} ... \end{abstract}   % optional, full width
+%    \begincolumns                        % two columns from here on
+%    \section{...}
+%    ...
+%
+%  Sections are unnumbered; refer to them by name with
+%  \nameref{...}. Everything else (fields, environments, math,
+%  variants) is described in udt-core.sty.
+%
+%  Build: pdflatex → biber → pdflatex → pdflatex
+%
+%  Copyright (C) 2026 Hubert Rączkiewicz
+%
+%  This work may be distributed and/or modified under the
+%  conditions of the LaTeX Project Public License, either
+%  version 1.3c of this license or (at your option) any later
+%  version. The latest version of this license is in
+%    https://www.latex-project.org/lppl.txt
+%
+%  This work has the LPPL maintenance status `maintained'.
+%  The Current Maintainer of this work is Hubert Rączkiewicz.
+%  This work consists of the files udt-core.sty, udt-report.sty
+%  and udt-script.sty.
+% ============================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{udt-report}[2026/10/27 v0.10.0 Universal Document Template, report mode]
+\DeclareOption*{\PassOptionsToPackage{\CurrentOption}{udt-core}}
+\ProcessOptions\relax
+\RequirePackage{udt-core}
+
+% ============================================================
+%  KIND OF DOCUMENT
+%  \udt@doctypeline: “<doctype> <exercise>”, or the default kind
+%  with the number, or nothing (no \doctype and no \exercise).
+% ============================================================
+\udt@newfield{doctype}
+\newcommand*{\udt@doctypeline}{%
+	\ifdefempty{\udt@doctype}%
+		{\ifdefempty{\udt@exercise}{}{\udt@name@report\ \udt@exercise}}%
+		{\udt@doctype\ifdefempty{\udt@exercise}{}{\ \udt@exercise}}%
+}
+\newcommand*{\udt@id@report}[1]{\ [\udt@name@studentid: #1]}
+
+% ============================================================
+%  RUNNING HEADS — inner corner: kind and number of the document
+% ============================================================
+\ihead{\udt@doctypeline}
+
+% ============================================================
+%  NUMBERING
+%  Unnumbered sections (refer by \nameref); equations, figures,
+%  tables and theorem-like environments numbered 1, 2, ...
+%  through the whole document.
+% ============================================================
+\setcounter{secnumdepth}{0}
+\setcounter{tocdepth}{0}
+
+% ============================================================
+%  FLOATS
+%  multicols does not accept floats, so figures and tables are
+%  placed exactly where written ([H], float package). This makes
+%  a plain figure/table work inside a column; figure*/table*
+%  still span both columns (at the top of the next page).
+% ============================================================
+\floatplacement{figure}{H}
+\floatplacement{table}{H}
+
+
+% ============================================================
+%  SECTION HEADINGS (KOMA)
+% ============================================================
+\setkomafont{section}{\normalfont\bfseries\large}
+\setkomafont{subsection}{\normalfont\bfseries\normalsize}
+\RedeclareSectionCommand[beforeskip=1.0cm, afterskip=0.5cm]{section}
+\RedeclareSectionCommand[beforeskip=0.6cm, afterskip=0.3cm]{subsection}
+
+% ============================================================
+%  TITLE BLOCK
+%  Full-width bar — kind of document, title in capitals, author,
+%  supervisor, dates — closed by a rule. Empty fields drop their
+%  line.
+% ============================================================
+% The experiment date is passed by value: \udt@name@submitted tests
+% its argument with \ifblank, which would see the macro name, not
+% its (possibly empty) contents.
+\newcommand*{\udt@submitted}[1]{\udt@name@submitted{\@date}{#1}}
+% The title is set in a top-aligned box of full width, so that a
+% title running over two lines gets the baseline skip of its own
+% size (in the surrounding small-type paragraph the capitals of
+% the lines would touch) and is not stretched to the full width;
+% a one-line title stands exactly where it did before.
+\renewcommand{\maketitle}{%
+	\thispagestyle{empty}%
+	\noindent
+	\ifboolexpr{test {\ifdefempty{\udt@doctype}} and test {\ifdefempty{\udt@exercise}}}{}{%
+		{\normalsize\udt@doctypeline}\\[0.8em]}%
+	{\fontsize{20}{24}\selectfont\bfseries
+		\parbox[t]{\textwidth}{\raggedright\MakeUppercase{\@title}}}\\[0.8em]
+	{\small
+		{\itshape\udt@authors\udt@id@report}%
+		\ifdefempty{\udt@supervisor}{}{%
+			\\\hspace*{2em}\udt@name@supervisedby\ \textit{\udt@supervisor}}%
+		\ifdefempty{\@date}{}{%
+			\\[0.4em]\expandafter\udt@submitted\expandafter{\udt@experimentdate}}%
+	}\\[0.6em]
+	\noindent\rule{\textwidth}{0.4pt}\\[1em]
+}
+
+% ============================================================
+%  ENVIRONMENT abstract — small bold italic text, no heading
+% ============================================================
+\renewenvironment{abstract}{%
+	\small\bfseries\itshape
+}{%
+	\par\vspace{0.8em}%
+}
+
+% ============================================================
+%  ENVIRONMENT preface — italic text without heading, closed by
+%  a rule
+% ============================================================
+\newenvironment{preface}{%
+	\itshape
+	\noindent\ignorespaces
+}{%
+	\par\vspace{0.6em}%
+	\noindent\rule{\textwidth}{0.4pt}\\[1em]%
+}
+
+% ============================================================
+%  TWO-COLUMN BODY (report)
+%  \begincolumns opens two columns at the point of the call;
+%  everything above stays full width. A second call does
+%  nothing. The columns are closed automatically at the end of
+%  the document (registered as the last \AtEndDocument hook of
+%  the package).
+% ============================================================
+\newif\ifudt@columns
+\newcommand{\begincolumns}{%
+	\ifudt@columns\else
+		\global\udt@columnstrue
+		\begin{multicols}{2}%
+	\fi
+}
+\AtEndDocument{\ifudt@columns\end{multicols}\fi}

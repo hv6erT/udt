@@ -6,11 +6,46 @@ versioning: [SemVer](https://semver.org/).
 ## [Unreleased]
 
 ### Added
-- License: LPPL 1.3c (`LICENSE`, notice in `udt.sty`).
+- License: LPPL 1.3c (`LICENSE`, notice in each `.sty` file).
 
 ### Planned
 - Release 1.0.0 after the first real report and script are written
   with the package.
+
+## [0.10.0] — 2026-10-27
+
+### Changed (breaking)
+- The package is split into three files: `udt-core.sty` (common
+  part: packages, title fields, localization, typography,
+  mathematics, theorem-like environments, aside, variants),
+  `udt-report.sty` and `udt-script.sty` (the two modes). A document
+  loads one mode, which loads the core; options `plain`, `chem`,
+  `full` are passed on to it. `udt.sty` is removed.
+  Migration: `\usepackage[report]{udt}` → `\usepackage{udt-report}`,
+  `\usepackage[script]{udt}` → `\usepackage{udt-script}` (other
+  options unchanged); copy `udt-core.sty` together with the mode
+  file. Documents keeping a local copy of the old `udt.sty` are not
+  affected.
+- Variant content keeps the full text width: instead of a bracket
+  and an indent it is marked only by a thin vertical rule in the
+  margin to its left.
+
+### Added
+- Report mode: `\doctype{...}` sets the kind of document printed
+  above the title and in the running head instead of the fixed
+  “Sprawozdanie z ćwiczenia” / “Report on exercise”, e.g.
+  `\doctype{Streszczenie wykładu}` with `\exercise{3}` gives
+  “Streszczenie wykładu 3” — the report layout serves also lecture
+  summaries and similar short texts. Example `examples/notes.tex`.
+
+### Fixed
+- Report mode: without `\exercise` (and `\doctype`) the running head
+  no longer reads “Sprawozdanie z ćwiczenia” without a number.
+- Report mode: with `\date{}` the “Oddano” / “Submitted” line is
+  left out instead of standing alone.
+- Report mode: a title running over two lines gets the line spacing
+  of its own size (the capitals of the lines no longer touch) and
+  is set ragged right; a one-line title is unchanged.
 
 ## [0.9.1] — 2026-10-25
 

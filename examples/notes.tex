@@ -1,0 +1,43 @@
+% udt — example of the report mode used for a lecture summary
+\documentclass[a4paper, polish, 11pt]{scrartcl}
+\usepackage{udt-report}
+
+\doctype{Streszczenie wykładu}
+\exercise{3}
+\title{Rozkład spektralny i ewolucja w czasie}
+\author{Jan Kowalski}
+\date{}   % notes: no “Oddano” line
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Każde równanie Schrödingera z hermitowskim hamiltonianem to
+w odpowiedniej bazie układ niezależnych oscylatorów.
+\end{abstract}
+
+\begincolumns
+
+\section{Myśl przewodnia}
+Hamiltonian rozkładamy jako $H = \hbar\,QWQ^\dagger$, gdzie kolumny $Q$
+są stanami stacjonarnymi, a $W$ zawiera częstości własne. Wtedy
+\begin{equation}
+	U(t) = e^{-itH/\hbar} = Q\,e^{-itW}Q^\dagger
+	\label{eq:U}
+\end{equation}
+
+\begin{theorem}[Twierdzenie spektralne]\label{tw:spektr}
+Każda macierz hermitowska jest unitarnie diagonalizowalna.
+\end{theorem}
+
+\begin{extended}
+Wyprowadzenie wzoru~\eqref{eq:U}: $H^n = \hbar^n QW^nQ^\dagger$, bo środkowe
+czynniki $Q^\dagger Q$ dają jedynkę; sumując szereg wykładniczy,
+otrzymujemy wzór~\eqref{eq:U}. Ten akapit jest w wariancie
+\texttt{extended}: pełna szerokość łamu, kreska na marginesie.
+\end{extended}
+
+\section{Pytania do siebie}
+Dlaczego kolejność kolumn $Q$ nie ma znaczenia? Zob. \cref{tw:spektr}.
+
+\end{document}

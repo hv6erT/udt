@@ -1,24 +1,22 @@
 % ============================================================
-%  udt.sty — Universal Document Template
+%  udt-core.sty — Universal Document Template, common part
 %
-%  One package for lab reports and longer texts (scripts,
-%  course papers, notes). Successor of urt.sty and of the
-%  former udt.sty.
+%  Not loaded directly: it is loaded by udt-report.sty (lab
+%  reports, lecture summaries) or udt-script.sty (scripts,
+%  course papers, notes), which pass their options on. It holds
+%  everything both modes share: packages, title fields,
+%  localization, typography, mathematics, theorem-like
+%  environments, aside and variants.
 %
-%  Usage:
-%    \documentclass[a4paper, polish, 11pt]{scrartcl}
-%    \usepackage[report]{udt}       % or [script]; plus chem, plain
-%    \addbibresource{references.bib}   % optional
-%
-%  Modes:
-%    report — lab report: header bar, two-column body after
-%             \begincolumns, unnumbered sections, equations
-%             and floats numbered 1, 2, ...; figures and tables
-%             are placed here ([H]) so they work inside columns,
-%             figure*/table* span both columns.
-%    script — longer text (default): title block, table of
-%             contents, numbered sections, numbering within
-%             sections (e.g. figure 12.3).
+%  Options (given to udt-report or udt-script):
+%    plain — theorem-like environments and aside without
+%            coloured blocks (plain amsthm look; aside in
+%            smaller type);
+%    chem  — mhchem (\ce) and the macros
+%              \std             superscript of the standard state (⦵)
+%              \Eo              standard potential E⦵
+%              \redox{Ox}{Red}  redox couple Ox/Red
+%    full  — switches on all variants (see below).
 %
 %  The document language is taken from the class options
 %  (babel). Typeset strings (headings, labels, cross-reference
@@ -36,34 +34,16 @@
 %    \supervisor{Supervisor's name}
 %    \place{City}
 %    \date{Submission date}          % default: \today
-%    \exercise{Exercise number}      % reports
-%    \experimentdate{Date}           % reports
+%    \exercise{Number}               % report: exercise, lecture, ...
+%    \experimentdate{Date}           % report
+%    \doctype{Kind of document}      % report, see udt-report.sty
+%  Which fields a mode prints is described in its own file.
 %
-%  Document structure (script):
-%    \maketitle
-%    \begin{abstract} ... \end{abstract}   % optional
-%    \begin{preface}  ... \end{preface}    % optional
-%    \tableofcontents
-%    \section{...}
-%    ...
-%    \printbibliography
-%
-%  Document structure (report):
-%    \maketitle
-%    \begin{preface}  ... \end{preface}    % optional, full width
-%    \begin{abstract} ... \end{abstract}   % optional, full width
-%    \begincolumns                        % two columns from here on
-%    \section{...}
-%    ...
-%
-%  Sections in report mode are unnumbered; refer to them by
-%  name with \nameref{...}.
-%
-%  Theorem-like environments (one shared counter, numbered
-%  within sections), each drawn as a coloured block: definition,
-%  theorem, law, lemma, fact, corollary, example, remark; plus
-%  proof (amsthm) and the unnumbered aside for side information.
-%  Named colours for physical quantities (text and TikZ):
+%  Theorem-like environments (one shared counter), each drawn as
+%  a coloured block: definition, theorem, law, lemma, fact,
+%  corollary, example, remark; plus proof (amsthm) and the
+%  unnumbered aside for side information. Named colours for
+%  physical quantities (text and TikZ):
 %  udtPos, udtVel, udtAcc, udtForce, udtMom, udtAxis.
 %
 %  Math: derivative (derivatives), fixdif (differentials),
@@ -74,14 +54,6 @@
 %  Automatic brackets: \ab(...) instead of physics' \qty(...);
 %  \qty is siunitx's quantity command.
 %
-%  Option plain: theorem-like environments and aside without
-%  coloured blocks (plain amsthm look; aside in smaller type).
-%
-%  Option chem: mhchem (\ce) and the macros
-%    \std             superscript of the standard state (⦵)
-%    \Eo              standard potential E⦵
-%    \redox{Ox}{Red}  redox couple Ox/Red
-%
 %  Variants (conditional content): one source, several versions
 %  of the document. A variant is an environment whose content is
 %  typeset only when the variant is switched on; otherwise it is
@@ -91,11 +63,12 @@
 %    \begin{name1}
 %      ...
 %    \end{name1}
-%  Shown variant content is set off by a square bracket on the
-%  left and a small indent; figures and tables inside are placed
-%  where written ([H]). \begin and \end may be indented. Hidden
-%  content is read as an argument: it must have balanced braces
-%  and must not contain verbatim material.
+%  Shown variant content keeps the full text width and is marked
+%  only by a thin vertical rule in the margin to its left;
+%  figures and tables inside are placed where written ([H]).
+%  \begin and \end may be indented. Hidden content is read as an
+%  argument: it must have balanced braces and must not contain
+%  verbatim material.
 %  The variant extended is predefined. Option full switches on
 %  all variants; so does a job name ending in -ext, so that
 %    pdflatex name  and  pdflatex -jobname=name-ext name
@@ -115,25 +88,23 @@
 %
 %  This work has the LPPL maintenance status `maintained'.
 %  The Current Maintainer of this work is Hubert Rączkiewicz.
-%  This work consists of the file udt.sty.
+%  This work consists of the files udt-core.sty, udt-report.sty
+%  and udt-script.sty.
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt}[2026/10/25 v0.9.1 Universal Document Template]
+\ProvidesPackage{udt-core}[2026/10/27 v0.10.0 Universal Document Template, common part]
 
 % ============================================================
 %  OPTIONS
 % ============================================================
 \newif\ifudt@chem
-\newif\ifudt@report
 \newif\ifudt@full
 \newif\ifudt@plain
 \DeclareOption{chem}{\udt@chemtrue}
 \DeclareOption{full}{\udt@fulltrue}
 \DeclareOption{plain}{\udt@plaintrue}
-\DeclareOption{report}{\udt@reporttrue}
-\DeclareOption{script}{\udt@reportfalse}
-\DeclareOption*{\PackageWarning{udt}{Unknown option `\CurrentOption'}}
+\DeclareOption*{\PackageWarning{udt-core}{Unknown option `\CurrentOption'}}
 \ProcessOptions\relax
 
 % ============================================================
@@ -253,7 +224,6 @@
 \RequirePackage{cleveref}
 \RequirePackage{footnotehyper}
 
-\makeatletter
 
 % ============================================================
 %  TITLE FIELDS
@@ -309,8 +279,6 @@
 			}
 	}
 \ExplSyntaxOff
-\newcommand*{\udt@id@report}[1]{\ [\udt@name@studentid: #1]}
-\newcommand*{\udt@id@script}[1]{\ {\normalsize(\udt@name@studentid\ #1)}}
 
 % ============================================================
 %  LOCALIZATION
@@ -442,20 +410,14 @@
 	\expandafter\addto\csname captions\udt@lang\endcsname{\udt@captions@english}}
 \addto\captionspolish{\udt@captions@polish}
 
+
 % ============================================================
 %  RUNNING HEADS
-%  report: inner corner “Report on exercise N”,
-%  script: number and title of the current section;
+%  The inner corner is set by the mode (udt-report, udt-script);
 %  outer corner: page number.
 % ============================================================
 \pagestyle{scrheadings}
 \clearpairofpagestyles
-\ifudt@report
-	\ihead{\udt@name@report\ \udt@exercise}
-\else
-	\automark[section]{section}
-	\ihead{\headmark}
-\fi
 \ohead{\pagemark}
 \KOMAoptions{headsepline=true}
 \setkomafont{pageheadfoot}{\small\normalfont}
@@ -489,38 +451,13 @@
 	pdfborder  = {0 0 0},
 }
 
-% ============================================================
-%  NUMBERING
-%  report: unnumbered sections (refer by \nameref); equations,
-%          figures and tables numbered 1, 2, ... through the
-%          whole report.
-%  script: sections and subsections numbered and listed in the
-%          TOC; equations, figures and tables numbered within
-%          sections (e.g. figure 12.3).
-% ============================================================
-\ifudt@report
-	\setcounter{secnumdepth}{0}
-	\setcounter{tocdepth}{0}
-\else
-	\setcounter{secnumdepth}{2}
-	\setcounter{tocdepth}{2}
-	\counterwithin{equation}{section}
-	\counterwithin{figure}{section}
-	\counterwithin{table}{section}
-\fi
-\creflabelformat{equation}{(#2#1#3)}
 
 % ============================================================
-%  FLOATS IN REPORT MODE
-%  multicols does not accept floats, so figures and tables are
-%  placed exactly where written ([H], float package). This makes
-%  a plain figure/table work inside a column; figure*/table*
-%  still span both columns (at the top of the next page).
+%  NUMBERING
+%  Sections, equations, figures and tables are numbered by the
+%  mode (udt-report, udt-script).
 % ============================================================
-\ifudt@report
-	\floatplacement{figure}{H}
-	\floatplacement{table}{H}
-\fi
+\creflabelformat{equation}{(#2#1#3)}
 
 % ============================================================
 %  MATHEMATICS — operators and aliases
@@ -556,35 +493,6 @@
 	\newcommand{\redox}[2]{\ce{#1}/\ce{#2}}
 \fi
 
-% ============================================================
-%  SECTION HEADINGS (KOMA)
-%  \part in scrartcl is an in-text heading (no new page);
-%  section numbering runs through parts without reset.
-% ============================================================
-\ifudt@report
-	\setkomafont{section}{\normalfont\bfseries\large}
-	\setkomafont{subsection}{\normalfont\bfseries\normalsize}
-	\RedeclareSectionCommand[beforeskip=1.0cm, afterskip=0.5cm]{section}
-	\RedeclareSectionCommand[beforeskip=0.6cm, afterskip=0.3cm]{subsection}
-\else
-	\setkomafont{part}{\normalfont\bfseries\huge}
-	\setkomafont{partnumber}{\normalfont\bfseries\huge}
-	\RedeclareSectionCommand[beforeskip=2cm, afterskip=1.5cm]{part}
-	\setkomafont{section}{\normalfont\bfseries\Large}
-	\setkomafont{subsection}{\normalfont\bfseries\large}
-	\setkomafont{subsubsection}{\normalfont\bfseries\normalsize}
-	\RedeclareSectionCommand[beforeskip=1.2cm, afterskip=0.5cm]{section}
-	\RedeclareSectionCommand[beforeskip=0.7cm, afterskip=0.3cm]{subsection}
-	\RedeclareSectionCommand[beforeskip=0.5cm, afterskip=0.2cm]{subsubsection}
-\fi
-
-% ============================================================
-%  TABLE OF CONTENTS
-% ============================================================
-\setkomafont{disposition}{\normalfont\bfseries}
-\KOMAoptions{toc=listof}
-\RedeclareSectionCommand[tocnumwidth=2.2em]{section}
-\RedeclareSectionCommand[tocindent=2.2em, tocnumwidth=3.0em]{subsection}
 
 % ============================================================
 %  CAPTIONS
@@ -599,136 +507,6 @@
 }
 \captionsetup[sub]{font=footnotesize, labelfont=normalfont, labelformat=parens}
 
-% ============================================================
-%  TITLE BLOCK
-%  report: full-width bar — exercise line, title in capitals,
-%          author, supervisor, dates — closed by a rule.
-%  script: a compact block at the top of the first page (no
-%          running head); the text — usually the abstract —
-%          follows directly.
-% ============================================================
-% The experiment date is passed by value: \udt@name@submitted tests
-% its argument with \ifblank, which would see the macro name, not
-% its (possibly empty) contents.
-\newcommand*{\udt@submitted}[1]{\udt@name@submitted{\@date}{#1}}
-\newcommand{\udt@maketitle@report}{%
-	\thispagestyle{empty}%
-	\noindent
-	\ifdefempty{\udt@exercise}{}{%
-		{\normalsize\udt@name@report\ \udt@exercise}\\[0.8em]}%
-	{\fontsize{20}{24}\selectfont\bfseries\MakeUppercase{\@title}}\\[0.8em]
-	{\small
-		{\itshape\udt@authors\udt@id@report}\\
-		\ifdefempty{\udt@supervisor}{}{%
-			\hspace*{2em}\udt@name@supervisedby\ \textit{\udt@supervisor}\\[0.4em]}%
-		\expandafter\udt@submitted\expandafter{\udt@experimentdate}%
-	}\\[0.6em]
-	\noindent\rule{\textwidth}{0.4pt}\\[1em]
-}
-
-\newcommand{\udt@maketitle@script}{%
-	\thispagestyle{empty}%
-	\begingroup
-	\setstretch{1.0}%
-	\noindent
-	\begin{minipage}[t]{0.62\textwidth}
-		\raggedright
-		\ifdefempty{\udt@institution}{}{{\small\udt@institution\par}}%
-		\ifdefempty{\udt@course}{}{{\small\udt@course\par}}%
-		\ifdefempty{\udt@group}{}{{\small\udt@group\par}}%
-	\end{minipage}%
-	\hfill
-	\begin{minipage}[t]{0.34\textwidth}
-		\raggedleft\small
-		\ifdefempty{\udt@place}{}{\udt@place, }\@date\par
-	\end{minipage}\par
-	\vspace{2.2em}
-	{\fontsize{24}{29}\selectfont\bfseries\@title\par}
-	\ifdefempty{\@subtitle}{}{%
-		\vspace{0.5em}%
-		{\large\itshape\@subtitle\par}}%
-	\vspace{1.6em}
-	{\large\udt@authors\udt@id@script\par}
-	\ifdefempty{\udt@supervisor}{}{%
-		\vspace{0.3em}%
-		{\normalsize\udt@name@supervisor: \udt@supervisor\par}}%
-	\vspace{1.0em}
-	\noindent\rule{\textwidth}{0.6pt}\par
-	\vspace{0.6em}
-	\endgroup
-}
-
-\renewcommand{\maketitle}{%
-	\ifudt@report\udt@maketitle@report\else\udt@maketitle@script\fi}
-
-% ============================================================
-%  ENVIRONMENT abstract
-%  report: small bold italic text, no heading.
-%  script: unnumbered heading (outside the TOC, with its own
-%          running head), upright text with slightly narrowed
-%          margins.
-% ============================================================
-\ifudt@report
-\renewenvironment{abstract}{%
-	\small\bfseries\itshape
-}{%
-	\par\vspace{0.8em}%
-}
-\else
-\renewenvironment{abstract}{%
-	\section*{\udt@name@abstract}%
-	\markboth{\udt@name@abstract}{\udt@name@abstract}%
-	\begin{list}{}{%
-		\setlength{\leftmargin}{1.5em}%
-		\setlength{\rightmargin}{1.5em}%
-	}%
-	\item\relax
-}{%
-	\end{list}%
-	\par\vspace{0.8em}%
-}
-\fi
-
-% ============================================================
-%  ENVIRONMENT preface
-%  report: italic text without heading, closed by a rule.
-%  script: unnumbered heading, italic text.
-% ============================================================
-\ifudt@report
-\newenvironment{preface}{%
-	\itshape
-	\noindent\ignorespaces
-}{%
-	\par\vspace{0.6em}%
-	\noindent\rule{\textwidth}{0.4pt}\\[1em]%
-}
-\else
-\newenvironment{preface}{%
-	\section*{\udt@name@preface}%
-	\markboth{\udt@name@preface}{\udt@name@preface}%
-	\itshape
-	\noindent\ignorespaces
-}{%
-	\par\vspace{0.8em}%
-}
-\fi
-
-% ============================================================
-%  TWO-COLUMN BODY (report)
-%  \begincolumns opens two columns at the point of the call;
-%  everything above stays full width. A second call does
-%  nothing. The columns are closed automatically at the end of
-%  the document (registered as the last \AtEndDocument hook of
-%  the package).
-% ============================================================
-\newif\ifudt@columns
-\newcommand{\begincolumns}{%
-	\ifudt@columns\else
-		\global\udt@columnstrue
-		\begin{multicols}{2}%
-	\fi
-}
-\AtEndDocument{\ifudt@columns\end{multicols}\fi}
 
 % ============================================================
 %  COLOURS
@@ -756,8 +534,8 @@
 % ============================================================
 %  THEOREM-LIKE ENVIRONMENTS
 %
-%  One shared counter, numbered within sections (report: through
-%  the whole document) — a reference “9.1” points to exactly one
+%  One shared counter, numbered through the whole document
+%  (udt-report) or within sections (udt-script) — a reference “9.1” points to exactly one
 %  object. A proper name goes into the optional argument; list
 %  all common names, the most widespread first:
 %      \begin{theorem}[Steiner's theorem (parallel axis theorem)]
@@ -773,11 +551,7 @@
 %  extended), so that numbers stay the same across versions.
 % ============================================================
 \theoremstyle{plain}
-\ifudt@report
-	\newtheorem{theorem}{\udt@name@theorem}
-\else
-	\newtheorem{theorem}{\udt@name@theorem}[section]
-\fi
+\newtheorem{theorem}{\udt@name@theorem}  % udt-script: within sections
 \newtheorem{lemma}[theorem]{\udt@name@lemma}
 \newtheorem{fact}[theorem]{\udt@name@fact}
 \newtheorem{corollary}[theorem]{\udt@name@corollary}
@@ -822,8 +596,8 @@
 \@for\udt@env:=definition,theorem,law,lemma,fact,corollary,example,remark,definition*,theorem*,law*,lemma*,fact*,corollary*,example*,remark*,aside,udt@variantblock\do{%
 	\AddToHook{env/\udt@env/before}[udt/notes]{\begin{savenotes}}%
 	\AddToHook{env/\udt@env/after}[udt/notes]{\end{savenotes}}%
-	\DeclareHookRule{env/\udt@env/before}{udt/notes}{before}{udt}%
-	\DeclareHookRule{env/\udt@env/after}{udt/notes}{after}{udt}%
+	\DeclareHookRule{env/\udt@env/before}{udt/notes}{before}{udt-core}%
+	\DeclareHookRule{env/\udt@env/after}{udt/notes}{after}{udt-core}%
 }
 % option plain: no coloured blocks, the environments keep the
 % plain amsthm look (as in the first versions of the package)
@@ -1023,8 +797,8 @@
 % ============================================================
 %  VARIANTS — conditional content
 %  One source, several versions of a document. A variant that is
-%  switched on is an ordinary environment, its content set off by
-%  a bracket on the left; a variant that is off takes its body as an
+%  switched on is an ordinary environment, its content marked by
+%  a rule in the left margin; a variant that is off takes its body as an
 %  argument and typesets nothing. \begin and \end may be indented
 %  and stand anywhere. The decision is taken at \begin{document},
 %  so \newvariant and \showvariant may come in any order in the
@@ -1034,33 +808,24 @@
 %  Option full, or a job name ending in -ext, switches on every
 %  variant. Predefined: extended.
 % ============================================================
-% Shown variant content is marked by a square bracket on the left
-% (distinct in shape from the proof rule, also in greyscale) and
-% a small indent. The block may break across pages — the bracket
-% then stays open at the break (no tick at the bottom of the first
-% part nor at the top of the next); figures and tables inside it are placed
-% where written ([H]), since a float cannot leave a box. Inside
-% another box (e.g. a theorem) the block cannot break, so long
-% content there is better split into several shorter blocks.
+% Shown variant content keeps the full text width; it is marked
+% only by a thin vertical rule in the margin to its left (it does
+% not shift either margin). The block may break across pages — the
+% rule then runs along every part; figures and tables inside it
+% are placed where written ([H]), since a float cannot leave a
+% box. Inside another box (e.g. a theorem) the block cannot break,
+% so long content there is better split into several shorter
+% blocks.
 \definecolor{udtVariantColor}{RGB}{64,64,64}
-\tikzset{udt@bracket/.style = {udtVariantColor, line width = 0.8pt,
-	line join = miter, line cap = butt}}
-\def\udt@tick{6pt}
+\tikzset{udt@variantrule/.style = {udtVariantColor, line width = 0.8pt, line cap = butt}}
+\def\udt@variantgap{6pt}  % distance of the rule from the text
 \newenvironment{udt@variantblock}{%
 	\begin{tcolorbox}[
 		enhanced, breakable, frame hidden, interior hidden,
-		overlay unbroken = {\draw[udt@bracket]
-			([xshift=\udt@tick]frame.north west) -- ([xshift=2pt]frame.north west)
-			-- ([xshift=2pt]frame.south west) -- ([xshift=\udt@tick]frame.south west);},
-		overlay first = {\draw[udt@bracket]
-			([xshift=\udt@tick]frame.north west) -- ([xshift=2pt]frame.north west)
-			-- ([xshift=2pt]frame.south west);},
-		overlay middle = {\draw[udt@bracket]
-			([xshift=2pt]frame.north west) -- ([xshift=2pt]frame.south west);},
-		overlay last = {\draw[udt@bracket]
-			([xshift=2pt]frame.north west)
-			-- ([xshift=2pt]frame.south west) -- ([xshift=\udt@tick]frame.south west);},
-		left = 10pt, right = 0pt, top = 1pt, bottom = 1pt,
+		overlay = {\draw[udt@variantrule]
+			([xshift=-\udt@variantgap]frame.north west)
+			-- ([xshift=-\udt@variantgap]frame.south west);},
+		left = 0pt, right = 0pt, top = 1pt, bottom = 1pt,
 		boxsep = 0pt, before skip = 6pt, after skip = 6pt, udt@notes,
 	]%
 	\renewenvironment{figure}[1][]{\udt@figure@float[H]}{\udt@endfigure@float}%
@@ -1090,7 +855,7 @@
 					{
 						\cs_if_exist:cT {##1}
 							{
-								\PackageError {udt}
+								\PackageError {udt-core}
 									{ Variant~`##1'~clashes~with~an~existing~command~or~environment }
 									{ Choose~another~name~for~the~variant. }
 							}
@@ -1111,7 +876,7 @@
 		\clist_map_inline:Nn \g__udt_shown_clist
 			{
 				\clist_if_in:NnF \g__udt_variants_clist {#1}
-					{ \PackageWarningNoLine {udt} { \token_to_str:N \showvariant :~unknown~variant~`#1' } }
+					{ \PackageWarningNoLine {udt-core} { \token_to_str:N \showvariant :~unknown~variant~`#1' } }
 			}
 		\clist_map_inline:Nn \g__udt_variants_clist
 			{
@@ -1127,4 +892,3 @@
 \ExplSyntaxOff
 \newvariant{extended}
 
-\makeatother

@@ -1,0 +1,168 @@
+% ============================================================
+%  udt-script.sty — Universal Document Template, script mode
+%
+%  Longer texts: scripts, course papers, notes. Loads
+%  udt-core.sty (common part) and passes the options plain,
+%  chem, full on to it.
+%
+%  Usage:
+%    \documentclass[a4paper, polish, 11pt]{scrartcl}
+%    \usepackage{udt-script}           % options: plain, chem, full
+%    \addbibresource{references.bib}   % optional
+%
+%  Layout: title block, table of contents, numbered sections;
+%  equations, figures, tables and theorem-like environments
+%  numbered within sections (e.g. figure 12.3).
+%
+%  Fields printed in the title block (all optional except \title
+%  and \author): \institution, \course, \group, \place, \date,
+%  \title, \subtitle, \author, \studentid, \supervisor.
+%  \doctype, \exercise and \experimentdate are not printed.
+%
+%  Document structure:
+%    \maketitle
+%    \begin{abstract} ... \end{abstract}   % optional
+%    \begin{preface}  ... \end{preface}    % optional
+%    \tableofcontents
+%    \section{...}
+%    ...
+%    \printbibliography
+%
+%  Everything else (fields, environments, math, variants) is
+%  described in udt-core.sty.
+%
+%  Build: pdflatex → biber → pdflatex → pdflatex
+%
+%  Copyright (C) 2026 Hubert Rączkiewicz
+%
+%  This work may be distributed and/or modified under the
+%  conditions of the LaTeX Project Public License, either
+%  version 1.3c of this license or (at your option) any later
+%  version. The latest version of this license is in
+%    https://www.latex-project.org/lppl.txt
+%
+%  This work has the LPPL maintenance status `maintained'.
+%  The Current Maintainer of this work is Hubert Rączkiewicz.
+%  This work consists of the files udt-core.sty, udt-report.sty
+%  and udt-script.sty.
+% ============================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{udt-script}[2026/10/27 v0.10.0 Universal Document Template, script mode]
+\DeclareOption*{\PassOptionsToPackage{\CurrentOption}{udt-core}}
+\ProcessOptions\relax
+\RequirePackage{udt-core}
+
+\udt@newfield{doctype}  % accepted, not printed
+\newcommand*{\udt@id@script}[1]{\ {\normalsize(\udt@name@studentid\ #1)}}
+
+% ============================================================
+%  RUNNING HEADS — inner corner: number and title of the current
+%  section
+% ============================================================
+\automark[section]{section}
+\ihead{\headmark}
+
+% ============================================================
+%  NUMBERING
+%  Sections and subsections numbered and listed in the TOC;
+%  equations, figures, tables and theorem-like environments
+%  numbered within sections (e.g. figure 12.3).
+% ============================================================
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\counterwithin{equation}{section}
+\counterwithin{figure}{section}
+\counterwithin{table}{section}
+\counterwithin{theorem}{section}
+
+% ============================================================
+%  SECTION HEADINGS (KOMA)
+%  \part in scrartcl is an in-text heading (no new page);
+%  section numbering runs through parts without reset.
+% ============================================================
+\setkomafont{part}{\normalfont\bfseries\huge}
+\setkomafont{partnumber}{\normalfont\bfseries\huge}
+\RedeclareSectionCommand[beforeskip=2cm, afterskip=1.5cm]{part}
+\setkomafont{section}{\normalfont\bfseries\Large}
+\setkomafont{subsection}{\normalfont\bfseries\large}
+\setkomafont{subsubsection}{\normalfont\bfseries\normalsize}
+\RedeclareSectionCommand[beforeskip=1.2cm, afterskip=0.5cm]{section}
+\RedeclareSectionCommand[beforeskip=0.7cm, afterskip=0.3cm]{subsection}
+\RedeclareSectionCommand[beforeskip=0.5cm, afterskip=0.2cm]{subsubsection}
+
+% ============================================================
+%  TABLE OF CONTENTS
+% ============================================================
+\setkomafont{disposition}{\normalfont\bfseries}
+\KOMAoptions{toc=listof}
+\RedeclareSectionCommand[tocnumwidth=2.2em]{section}
+\RedeclareSectionCommand[tocindent=2.2em, tocnumwidth=3.0em]{subsection}
+
+
+% ============================================================
+%  TITLE BLOCK
+%  A compact block at the top of the first page (no running
+%  head); the text — usually the abstract — follows directly.
+% ============================================================
+\renewcommand{\maketitle}{%
+	\thispagestyle{empty}%
+	\begingroup
+	\setstretch{1.0}%
+	\noindent
+	\begin{minipage}[t]{0.62\textwidth}
+		\raggedright
+		\ifdefempty{\udt@institution}{}{{\small\udt@institution\par}}%
+		\ifdefempty{\udt@course}{}{{\small\udt@course\par}}%
+		\ifdefempty{\udt@group}{}{{\small\udt@group\par}}%
+	\end{minipage}%
+	\hfill
+	\begin{minipage}[t]{0.34\textwidth}
+		\raggedleft\small
+		\ifdefempty{\udt@place}{}{\udt@place, }\@date\par
+	\end{minipage}\par
+	\vspace{2.2em}
+	{\fontsize{24}{29}\selectfont\bfseries\@title\par}
+	\ifdefempty{\@subtitle}{}{%
+		\vspace{0.5em}%
+		{\large\itshape\@subtitle\par}}%
+	\vspace{1.6em}
+	{\large\udt@authors\udt@id@script\par}
+	\ifdefempty{\udt@supervisor}{}{%
+		\vspace{0.3em}%
+		{\normalsize\udt@name@supervisor: \udt@supervisor\par}}%
+	\vspace{1.0em}
+	\noindent\rule{\textwidth}{0.6pt}\par
+	\vspace{0.6em}
+	\endgroup
+}
+
+% ============================================================
+%  ENVIRONMENT abstract
+%  Unnumbered heading (outside the TOC, with its own running
+%  head), upright text with slightly narrowed margins.
+% ============================================================
+\renewenvironment{abstract}{%
+	\section*{\udt@name@abstract}%
+	\markboth{\udt@name@abstract}{\udt@name@abstract}%
+	\begin{list}{}{%
+		\setlength{\leftmargin}{1.5em}%
+		\setlength{\rightmargin}{1.5em}%
+	}%
+	\item\relax
+}{%
+	\end{list}%
+	\par\vspace{0.8em}%
+}
+
+% ============================================================
+%  ENVIRONMENT preface — unnumbered heading, italic text
+% ============================================================
+\newenvironment{preface}{%
+	\section*{\udt@name@preface}%
+	\markboth{\udt@name@preface}{\udt@name@preface}%
+	\itshape
+	\noindent\ignorespaces
+}{%
+	\par\vspace{0.8em}%
+}
