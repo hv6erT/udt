@@ -93,7 +93,7 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt-core}[2026/10/28 v0.10.1 Universal Document Template, common part]
+\ProvidesPackage{udt-core}[2026/10/28 v0.10.2 Universal Document Template, common part]
 
 % ============================================================
 %  OPTIONS
@@ -124,12 +124,14 @@
 %    derivative — derivatives (\odv, \pdv, \fdv, ...),
 %    fixdif     — upright differential \d with correct spacing,
 %    physics2   — maintained modular successor of physics.
+%  dsfont gives the double-struck one \mathds{1} (identity matrix).
 % ============================================================
 \RequirePackage{amsmath}
 \RequirePackage{amssymb}
 \RequirePackage{amsthm}
 \RequirePackage{mathtools}
 \RequirePackage{bm}
+\RequirePackage{dsfont}
 \RequirePackage{derivative}
 \RequirePackage{fixdif}
 \RequirePackage{physics2}

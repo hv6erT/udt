@@ -12,6 +12,11 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.10.2] — 2026-10-28
+
+### Added
+- Package `dsfont`: `\mathds{1}` for the identity matrix.
+
 ## [0.10.1] — 2026-10-28
 
 ### Changed
