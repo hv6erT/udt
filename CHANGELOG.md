@@ -12,6 +12,13 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.10.1] — 2026-10-28
+
+### Changed
+- Footnote marks end with a closing parenthesis (`H³⁾`, Polish
+  tradition), in the text and at the foot of the page: a bare
+  superscript after a symbol read as a power.
+
 ## [0.10.0] — 2026-10-27
 
 ### Changed (breaking)

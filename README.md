@@ -5,7 +5,7 @@ papers, notes, lecture summaries). Two modes in two files sharing a
 common core; successor of `urt.sty` (reports) and the former
 `udt.sty`.
 
-> **Status:** 0.10.0 — interface may still change before 1.0.0.
+> **Status:** 0.10.1 — interface may still change before 1.0.0.
 > Changes and migration notes: see `CHANGELOG.md`.
 
 ## Files
