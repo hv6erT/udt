@@ -6,6 +6,10 @@ versioning: [SemVer](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- Starter templates `templates/sprawozdanie.tex`,
+  `templates/streszczenie.tex`, `templates/skrypt.tex` (with a sample
+  `literatura.bib`); their comments explain every feature of the
+  package.
 - License: LPPL 1.3c (`LICENSE`, notice in each `.sty` file).
 
 ### Planned

@@ -1,0 +1,183 @@
+% ======================================================================
+%  udt — plik startowy: STRESZCZENIE WYKŁADU (tryb report)
+%
+%  Tryb report nadaje się nie tylko do sprawozdań: z \doctype staje się
+%  dwukolumnowym streszczeniem albo notatką. Ten plik pokazuje to, czego
+%  potrzeba w notatkach z wykładu: środowiska twierdzeń, dowody, uwagi
+%  na marginesie i matematykę (pochodne, wektory, bra-ket, macierze).
+%  Pola nagłówka, rysunki, tabele i bibliografia: zob. sprawozdanie.tex.
+%  Warianty i opcja chem: zob. skrypt.tex.
+%
+%  Kompilacja:  pdflatex → pdflatex
+%  (drugi przebieg: odsyłacze i pionowe kreski dowodów)
+% ======================================================================
+\documentclass[a4paper, polish, 11pt]{scrartcl}
+\usepackage{udt-report}
+
+% ----------------------------------------------------------------------
+%  NAGŁÓWEK
+%  \doctype zmienia rodzaj dokumentu; \exercise dopisuje do niego numer
+%  (dowolny tekst). Tu: „Streszczenie wykładu 1: część I”, nad tytułem
+%  i w paginie. Bez \exercise zostaje sam \doctype, np. „Notatki”.
+%  \date{} usuwa wiersz „Oddano: …”, zbędny w notatkach.
+% ----------------------------------------------------------------------
+\doctype{Streszczenie wykładu}
+\exercise{1: część I}
+\title{Tytuł wykładu}
+\author{Imię Nazwisko}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begincolumns
+
+\section{Środowiska twierdzeń}\label{sec:srodowiska}
+
+% ----------------------------------------------------------------------
+%  ŚRODOWISKA TWIERDZEŃ
+%  Każde jest kolorowym blokiem z paskiem po lewej. Wspólny licznik
+%  (w trybie report 1, 2, … w całym dokumencie), więc „Definicja 3”
+%  wskazuje dokładnie jeden obiekt. Nazwa własna w nawiasie kwadratowym;
+%  przy kilku nazwach — wszystkie, najpopularniejsza pierwsza.
+%    definition — definicja (prosto, niebieski),
+%    theorem    — twierdzenie (kursywa, czerwony),
+%    law        — prawo fizyczne (prosto, fioletowy),
+%    lemma, fact, corollary — lemat, fakt, wniosek (kursywa, zielony),
+%    example    — przykład (prosto, szary),
+%    remark     — uwaga (prosto, pomarańczowy).
+%  Każde ma bliźniaka z gwiazdką (definition*, …) — ten sam wygląd, bez
+%  numeru. Odsyłacz: \cref{def:hermit} → „definicja 1”.
+%  Opcja plain wyłącza kolorowe bloki (klasyczny wygląd amsthm).
+% ----------------------------------------------------------------------
+\begin{definition}[Macierz hermitowska]\label{def:hermit}
+Macierz kwadratową $A$ nazywa się hermitowską, jeżeli $A^\dagger = A$, czyli $A_{jk} = A_{kj}^*$ dla wszystkich $j, k$.
+\end{definition}
+
+\begin{theorem}[Twierdzenie spektralne]\label{tw:spektralne}
+Każda macierz hermitowska $A$ ma rzeczywiste wartości własne i daje się zapisać jako $A = Q\Lambda Q^\dagger$, gdzie $Q$ jest unitarna, a $\Lambda$ diagonalna.
+\end{theorem}
+
+% proof — dowód z cienką szarą kreską po lewej i znakiem końca ∎.
+% Nazwa w osobnym wierszu; inna nazwa: \begin{proof}[Szkic dowodu].
+% Kreska pojawia się po drugim przebiegu kompilacji.
+\begin{proof}
+Dla wektora własnego $\ket{v}$ z wartością $\lambda$ mamy $\braket*[3]{v}{A}{v} = \lambda\braket{v}{v}$. Lewa strona jest rzeczywista, bo $A^\dagger = A$, a $\braket{v}{v} > 0$, więc $\lambda \in \mathbb{R}$.
+\end{proof}
+
+\begin{example}
+Macierz $\sigma_y = \begin{pmatrix} 0 & -i \\ i & 0 \end{pmatrix}$ jest hermitowska (\cref{def:hermit}).
+\end{example}
+
+\begin{remark}
+\Cref{tw:spektralne} pozwala sprowadzić każde równanie Schrödingera do układu niezależnych oscylatorów.
+\end{remark}
+
+% aside — „na marginesie”: informacja poboczna (historia, ciekawostka,
+% zastosowanie), którą można pominąć bez utraty wątku. Bez numeru,
+% mniejsze pismo, szary blok. Tytuł opcjonalny.
+\begin{aside}[Skąd nazwa?]
+Charles Hermite badał takie formy kwadratowe w XIX wieku, zanim pojawiła się mechanika kwantowa.
+\end{aside}
+
+\section{Matematyka}\label{sec:matematyka}
+
+% ----------------------------------------------------------------------
+%  POCHODNE (pakiet derivative) i RÓŻNICZKI (fixdif)
+%    \odv{f}{t}        pochodna zwyczajna,  \odv[2]{x}{t}  druga,
+%    \odv{}{t}         sam operator d/dt,
+%    \pdv{f}{x}        cząstkowa,           \pdv{f}{x,y}   mieszana,
+%    \dv               alias \odv (nawyk z pakietu physics),
+%    \d x, \dd x       prosta różniczka z poprawnym odstępem.
+%  Pochodne po czasie kropką: \dot{x}_k, \ddot{q}_2.
+% ----------------------------------------------------------------------
+Równania Hamiltona:
+\begin{equation}
+	\dot{x}_k = \pdv{\bar H}{p_k}, \qquad \dot{p}_k = -\pdv{\bar H}{x_k}
+	\label{eq:hamilton}
+\end{equation}
+a praca siły na drodze $\Gamma$ to $W = \int_\Gamma \va{F} \vdot \d\va{r}$.
+
+% ----------------------------------------------------------------------
+%  WEKTORY
+%    \vb{r}  pogrubiony prosty,    \vb*{r}  pogrubiony pochyły,
+%    \va{F}  ze strzałką (prosty), \va*{F}  ze strzałką (pochyły),
+%    \vu{n}  wersor (daszek),      \vu*{n}  wersor pochyły,
+%    \vdot, \cross — iloczyn skalarny i wektorowy,
+%    \grad, \div, \curl, \laplacian — operatory nabla
+%    (symbol dzielenia ÷ to \divsymbol).
+% ----------------------------------------------------------------------
+Moment siły $\va{M} = \vb{r} \cross \va{F}$, rzut na oś $\vu{n}$: $M_n = \vu{n} \vdot \va{M}$. Pole zachowawcze: $\va{F} = -\grad V$, $\curl\va{F} = 0$.
+
+% ----------------------------------------------------------------------
+%  NAWIASY (physics2)
+%    \ab(...), \ab[...], \ab\{...\} — nawiasy dopasowane do zawartości
+%                                     (zamiast \qty(...) z physics),
+%    \abs{x}, \norm{v}               — moduł i norma,
+%    \eval{f}_{a}^{b}                — wartość w granicach.
+%  Uwaga: \qty to w udt polecenie siunitx (liczba z jednostką),
+%  np. \qty{9.81}{\metre\per\second\squared}.
+% ----------------------------------------------------------------------
+Energia: $\bar H = \sum_{k} \ab(\frac{p_k^2}{2m_k} + \frac{m_k\omega_k^2 x_k^2}{2})$, a $\abs{z_k}^2 = z_k z_k^*$.
+
+% ----------------------------------------------------------------------
+%  BRA-KET (physics2, składnia z klamrami)
+%    \ket{\psi}, \bra{\psi}          — ket, bra,
+%    \braket{\phi}{\psi}             — iloczyn skalarny ⟨φ|ψ⟩,
+%    \braket[3]{\phi}{A}{\psi}       — element macierzowy ⟨φ|A|ψ⟩,
+%    \ketbra{\psi}{\phi}             — |ψ⟩⟨φ|.
+%  Nawiasy i kreski same się skalują. Gdy wysoki element (kropka,
+%  krzyżyk †) powiększa je ponad potrzebę, wersja z gwiazdką ich nie
+%  skaluje: \ket*{\dot\psi}, \braket*[3]{v}{A^\dagger A}{w}.
+% ----------------------------------------------------------------------
+Równanie Schrödingera $i\hbar\,\odv{}{t}\ket{\psi} = H\ket{\psi}$ zachowuje normę $\braket{\psi}{\psi}$, a energia to $\bar H = \braket[3]{\psi}{H}{\psi}$. Pochodna: $\ket*{\dot\psi} = -\frac{i}{\hbar}H\ket{\psi}$, rzutowanie: $P = \ketbra{\psi}{\psi}$.
+
+% ----------------------------------------------------------------------
+%  MACIERZE
+%    pmatrix, bmatrix, vmatrix (amsmath) — nawiasy ( ), [ ], | |,
+%    \pdiagmat{a, b, c}                — macierz diagonalna (zera poza
+%                                        przekątną; \diagmat bez nawiasów),
+%    \pxmat{a}{3}{3}                   — macierz ogólna a_{jk},
+%    \mathds{1}                        — macierz jednostkowa,
+%    \Tr, \sgn                         — ślad, znak.
+%  Szeroki wzór w kolumnie: \setlength{\arraycolsep}{2pt} wewnątrz
+%  equation zwęża odstępy między kolumnami macierzy.
+% ----------------------------------------------------------------------
+Macierz częstości i ogólna macierz $3 \times 3$:
+\begin{equation}
+	\setlength{\arraycolsep}{2pt}
+	\Omega = \pdiagmat{\omega_1, \omega_2, \omega_3}, \qquad A = \pxmat{a}{3}{3}
+	\label{eq:macierz}
+\end{equation}
+przy czym $\Tr\Omega = \omega_1 + \omega_2 + \omega_3$ i $A^0 = \mathds{1}$.
+
+% ----------------------------------------------------------------------
+%  WZORY WIELOWIERSZOWE
+%  W wąskiej kolumnie długi wzór łamie się przez aligned wewnątrz
+%  equation (jeden numer dla całości). Przy łamaniu na znaku równości
+%  znak powtarza się w nowym wierszu.
+%  Wzory wystawione nie mają kropki ani przecinka na końcu.
+% ----------------------------------------------------------------------
+\begin{equation}
+	\begin{aligned}
+		e^X &= \sum_{m=0}^{\infty} \frac{X^m}{m!} \\
+		&= \mathds{1} + X + \frac{X^2}{2!} + \ldots
+	\end{aligned}
+	\label{eq:eksponenta}
+\end{equation}
+
+% Układ równań z klamrą:
+\begin{equation}
+	\left\{
+	\begin{aligned}
+		\dot{x}_k &= v_k \\
+		\dot{v}_k &= -\omega_k^2\,x_k
+	\end{aligned}
+	\right.
+	\label{eq:uklad}
+\end{equation}
+
+% Podpis pod wyrazem: \underbrace{\hbar\Omega}_{H}.
+Zatem $i\hbar\,\odv{}{t}\ket{z} = \underbrace{\hbar\Omega}_{H}\ket{z}$ (\cref{eq:uklad,eq:eksponenta}).
+
+\end{document}

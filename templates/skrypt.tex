@@ -1,0 +1,185 @@
+% ======================================================================
+%  udt — plik startowy: SKRYPT (tryb script)
+%
+%  Dłuższe teksty: skrypty, prace zaliczeniowe, notatki. Jedna kolumna,
+%  blok tytułowy, spis treści, numerowane rozdziały, bibliografia.
+%  Skopiuj ten plik razem z udt-core.sty i udt-script.sty.
+%  Środowiska twierdzeń i matematyka działają tak samo jak w trybie
+%  report — szczegółowy opis w streszczenie.tex; rysunki, tabele,
+%  jednostki i bibliografia — w sprawozdanie.tex.
+%
+%  Kompilacja:  pdflatex → biber → pdflatex → pdflatex
+%  Wersja rozszerzona (wszystkie warianty) z tego samego źródła:
+%      pdflatex -jobname=skrypt-ext skrypt
+% ======================================================================
+
+% ----------------------------------------------------------------------
+%  OPCJE
+%    plain — środowiska twierdzeń bez kolorowych bloków,
+%    chem  — chemia: \ce{...} (mhchem) oraz
+%              \std            — indeks stanu standardowego (⦵),
+%              \Eo             — potencjał standardowy E⦵,
+%              \redox{Ox}{Red} — para redoks Ox/Red,
+%    full  — włącza wszystkie warianty (jak nazwa zadania z -ext).
+% ----------------------------------------------------------------------
+\documentclass[a4paper, polish, 11pt]{scrartcl}
+\usepackage[chem]{udt-script}
+\addbibresource{literatura.bib}
+
+% ----------------------------------------------------------------------
+%  WARIANTY — treść warunkowa
+%  Jedno źródło, kilka wersji dokumentu. Wariant to środowisko, którego
+%  treść składa się tylko wtedy, gdy wariant jest włączony; inaczej
+%  znika, jakby go nie było w źródle.
+%    \newvariant{nazwa1, nazwa2}  — deklaracja (preambuła),
+%    \showvariant{nazwa1}         — włączenie (preambuła, dowolna kolejność),
+%    \begin{nazwa1} ... \end{nazwa1} — treść (wcięcia dozwolone).
+%  Wariant extended jest predefiniowany. Opcja full albo nazwa zadania
+%  kończąca się na -ext włącza wszystkie warianty, więc
+%      pdflatex skrypt   i   pdflatex -jobname=skrypt-ext skrypt
+%  dają skrypt.pdf i skrypt-ext.pdf z jednego pliku.
+%  Włączona treść ma pełną szerokość i cienką kreskę na lewym
+%  marginesie; może przechodzić przez strony. Rysunki i tabele w środku
+%  stoją tam, gdzie je wpisano ([H]).
+%  Ograniczenia ukrytej treści: zrównoważone klamry, bez verbatim.
+%  Ukryta treść nie dostaje numerów — numeracja wersji się różni,
+%  a \ref spoza wariantu do etykiety w jego wnętrzu daje „??”.
+%  Dlatego w wariantach używa się środowisk z gwiazdką (remark*, …).
+% ----------------------------------------------------------------------
+\newvariant{dodatek}
+\showvariant{dodatek}   % zakomentuj, aby ukryć treść wariantu dodatek
+
+% ----------------------------------------------------------------------
+%  POLA BLOKU TYTUŁOWEGO
+%  Tryb script drukuje: \institution, \course, \group, \place, \date,
+%  \title, \subtitle, \author, \studentid, \supervisor.
+%  Nie drukuje: \doctype, \exercise, \experimentdate (należą do trybu
+%  report). Kilku autorów: \author{A \and B}, \studentid{1 \and 2}.
+%  Tytuł i autorzy trafiają też do metadanych PDF.
+% ----------------------------------------------------------------------
+\institution{Politechnika Gdańska, Wydział Fizyki Technicznej i Matematyki Stosowanej}
+\course{Nazwa przedmiotu}
+\group{Fizyka Techniczna, Fizyka Stosowana, rok III}
+\title{Tytuł skryptu}
+\subtitle{Podtytuł}
+\author{Imię Nazwisko}
+\studentid{000000}
+\supervisor{dr Imię Nazwisko}
+\place{Gdańsk}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+% abstract i preface — oba opcjonalne, przed spisem treści.
+\begin{abstract}
+Krótkie streszczenie: o czym jest tekst i co z niego wynika.
+\end{abstract}
+
+\begin{preface}
+Przedmowa: dla kogo jest tekst, co trzeba umieć wcześniej, jak go czytać.
+\end{preface}
+
+% Spis treści: rozdziały i podrozdziały (dwa poziomy).
+\tableofcontents
+
+% ----------------------------------------------------------------------
+%  STRUKTURA
+%  \part — nagłówek części w tekście (bez nowej strony); numeracja
+%          rozdziałów biegnie przez części bez zerowania,
+%  \section, \subsection — numerowane i w spisie treści,
+%  \subsubsection — numerowane, poza spisem treści.
+%  Równania, rysunki, tabele i środowiska twierdzeń numerowane w obrębie
+%  rozdziału: 1.1, 1.2, … Pagina: numer i tytuł bieżącego rozdziału.
+%  Odsyłacze: \cref{sec:pojecia} → „rozdział 1”, \cref{eq:I} →
+%  „równanie (1.1)”, \cref{tw:steiner} → „twierdzenie 1.2”.
+% ----------------------------------------------------------------------
+\part{Podstawy}
+
+\section{Pojęcia}\label{sec:pojecia}
+
+\subsection{Definicje}\label{sec:definicje}
+
+% Kolejność dedukcyjna: najpierw przesłanki i mechanizm, definicja
+% lub twierdzenie jako wniosek.
+Rozłożenie masy bryły względem osi obrotu opisuje jedna liczba.
+
+\begin{definition}[Moment bezwładności]\label{def:I}
+Momentem bezwładności bryły względem osi o wersorze $\vu{n}$ nazywa się
+\begin{equation}
+	I = \int h^2 \d m, \qquad h^2 = \rho^2 - (\vu{n} \vdot \vb{\rho})^2
+	\label{eq:I}
+\end{equation}
+gdzie $h$ jest odległością elementu masy $\d m$ od osi.
+\end{definition}
+
+\subsection{Twierdzenia}\label{sec:twierdzenia}
+
+\begin{theorem}[Twierdzenie Steinera (o osiach równoległych)]\label{tw:steiner}
+Moment bezwładności względem osi odległej o $d$ od równoległej osi przez środek masy wynosi $I = I_0 + md^2$.
+\end{theorem}
+
+\begin{proof}
+Wystarczy rozpisać $h^2$ względem środka masy; wyrazy liniowe znikają z definicji środka masy.
+\end{proof}
+
+\begin{lemma}
+Dla bryły płaskiej $I_z = I_x + I_y$.
+\end{lemma}
+
+\begin{corollary}
+Moment bezwładności jest najmniejszy względem osi przechodzącej przez środek masy (\cref{tw:steiner}).
+\end{corollary}
+
+\begin{fact}
+Moment bezwładności jest addytywny względem podziału bryły na części.
+\end{fact}
+
+\begin{law}[II zasada dynamiki ruchu obrotowego]
+$M = I\varepsilon$ dla obrotu wokół ustalonej osi.
+\end{law}
+
+\begin{example}
+Dla pręta o długości $l$ względem osi przez koniec: $I = \frac{1}{3}ml^2$.
+\end{example}
+
+\begin{remark}
+Środowiska z gwiazdką (\texttt{remark*} itd.) wyglądają tak samo, ale nie mają numeru.
+\end{remark}
+
+\begin{aside}[Kim był Steiner?]
+Jakob Steiner był szwajcarskim geometrą XIX wieku.
+\end{aside}
+
+\part{Rozszerzenia}
+
+\section{Warianty i chemia}\label{sec:warianty}
+
+% Wariant dodatek — widoczny, bo włączony w preambule \showvariant.
+\begin{dodatek}
+\begin{remark*}
+Ta uwaga należy do wariantu \texttt{dodatek}: znika po zakomentowaniu \texttt{\textbackslash showvariant\{dodatek\}}.
+\end{remark*}
+\end{dodatek}
+
+% Wariant extended — widoczny tylko z opcją full albo w kompilacji -ext.
+\begin{extended}
+\begin{aside}[Wariant extended]
+Ten blok pojawia się wyłącznie w wersji rozszerzonej.
+\end{aside}
+\end{extended}
+
+% Chemia (opcja chem). Wzory i reakcje: \ce{...}.
+Ogniwo Daniella: \ce{Zn + Cu^2+ -> Zn^2+ + Cu}, siła elektromotoryczna $\Eo = \Eo_{\redox{Cu^2+}{Cu}} - \Eo_{\redox{Zn^2+}{Zn}} = \qty{1.10}{\volt}$, entalpia standardowa $\Delta H\std$.
+
+% Język można zmienić w środku dokumentu; napisy pakietu (Rys., Definicja,
+% nazwy w \cref) i format liczb przełączają się razem z nim. Klasa musi
+% znać oba języki: \documentclass[english, polish]{scrartcl} (ostatni
+% jest domyślny); fragment w innym języku:
+%   \begin{otherlanguage}{english} ... \end{otherlanguage}
+
+Literatura uzupełniająca: \cite{taylor,przyklad}.
+
+\printbibliography
+
+\end{document}

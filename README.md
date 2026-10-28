@@ -42,11 +42,25 @@ The full interface is documented in the headers of the `.sty` files.
 
 `pdflatex → biber → pdflatex → pdflatex`
 
+## Templates
+
+Starter files to copy into a new document folder (together with
+`udt-core.sty` and the mode file). Their comments (in Polish) explain
+every feature of the package where it is used:
+
+| file                         | mode   | covers                                            |
+|------------------------------|--------|---------------------------------------------------|
+| `templates/sprawozdanie.tex` | report | title fields, columns, figures, tables, units, footnotes, references, bibliography |
+| `templates/streszczenie.tex` | report | `\doctype`, theorem-like environments, proof, aside, derivatives, vectors, brackets, bra-ket, matrices |
+| `templates/skrypt.tex`       | script | title block, TOC, parts, numbering, variants, option `chem`, language switching |
+
+`templates/literatura.bib` is a sample bibliography for them.
+
 ## Examples
 
 `examples/report.tex`, `examples/notes.tex` (report mode as a lecture
 summary), `examples/script.tex`. Every change to the package must
-leave all examples compiling without errors.
+leave all examples and templates compiling without errors.
 
 ## License
 

@@ -1,0 +1,232 @@
+% ======================================================================
+%  udt — plik startowy: SPRAWOZDANIE Z ĆWICZENIA (tryb report)
+%
+%  Skopiuj ten plik razem z udt-core.sty i udt-report.sty do folderu
+%  sprawozdania, zmień nazwę i wypełnij pola. Komentarze opisują każdą
+%  funkcję pakietu, z której korzysta sprawozdanie; to, co wspólne
+%  z innymi trybami (środowiska, matematyka, warianty), opisano też
+%  w plikach streszczenie.tex i skrypt.tex.
+%
+%  Kompilacja:  pdflatex → biber → pdflatex → pdflatex
+%  (biber tylko przy bibliografii; trzeci przebieg rysuje m.in. pionowe
+%  kreski dowodów i ustala odsyłacze).
+%
+%  Wersja rozszerzona z tego samego źródła (zob. WARIANTY niżej):
+%      pdflatex -jobname=sprawozdanie-ext sprawozdanie
+%
+%  Konwencja źródła: jeden akapit = jedna linia, rysunki w rysunki/*.tex.
+% ======================================================================
+
+% ----------------------------------------------------------------------
+%  KLASA I PAKIET
+%  Klasa scrartcl (KOMA-Script); język z opcji klasy (babel): polish albo
+%  english. Od języka zależą wszystkie napisy pakietu („Rys.”, „Definicja”,
+%  „Oddano: …”, nazwy w \cref) i format liczb siunitx (przecinek dziesiętny).
+%
+%  Opcje udt-report (można łączyć, np. [chem, full]):
+%    plain — środowiska twierdzeń bez kolorowych bloków (wygląd amsthm),
+%    chem  — mhchem (\ce) i makra chemiczne \std, \Eo, \redox,
+%    full  — włącza wszystkie warianty (zob. WARIANTY).
+% ----------------------------------------------------------------------
+\documentclass[a4paper, polish, 11pt]{scrartcl}
+\usepackage{udt-report}
+
+% Bibliografia (biblatex + biber, numeracja w kolejności cytowania,
+% \cite daje [1], [2, 3]). Bez bibliografii usuń tę linię
+% i \printbibliography na końcu.
+\addbibresource{literatura.bib}
+
+% Własne pakiety dodaje się normalnie, np. schematy elektryczne:
+% \usepackage{circuitikz}
+
+% ----------------------------------------------------------------------
+%  POLA NAGŁÓWKA
+%  Wymagane są tylko \title i \author; puste lub pominięte pole nie
+%  zostawia śladu. W trybie report drukowane są:
+%    \doctype  — rodzaj dokumentu nad tytułem i w paginie; domyślnie
+%                „Sprawozdanie z ćwiczenia”, ale tylko razem z \exercise,
+%    \exercise — numer dopisywany do rodzaju dokumentu (dowolny tekst:
+%                „2”, „F-10”, „1: część I”),
+%    \title    — tytuł, składany wersalikami; dwa wiersze nie nachodzą,
+%    \author   — kilku autorów: \author{A \and B}, rozdzieleni kreską,
+%    \studentid — numery albumów w tej samej kolejności: {1 \and 2},
+%    \supervisor — po „pod nadzorem”, więc w dopełniaczu,
+%    \date     — data oddania (domyślnie \today); \date{} usuwa cały
+%                wiersz „Oddano: …”,
+%    \experimentdate — dopisuje „na podstawie ćwiczenia wykonanego …”.
+%  Pola \institution, \course, \group i \place tryb report przyjmuje,
+%  ale ich nie drukuje (drukuje je tryb script); warto je wypełnić, bo
+%  zostają w źródle i pozwalają przenieść tekst do skryptu.
+% ----------------------------------------------------------------------
+\institution{Politechnika Gdańska, Wydział Fizyki Technicznej i Matematyki Stosowanej}
+\course{Nazwa przedmiotu}
+\group{Fizyka Techniczna, Fizyka Stosowana, rok III}
+% \doctype{Sprawozdanie z ćwiczenia}   % domyślne, nie trzeba podawać
+\exercise{1}
+\title{Tytuł ćwiczenia}
+\author{Imię Nazwisko \and Imię Nazwisko}
+\studentid{000000 \and 000000}
+\supervisor{dr. Imię Nazwisko}
+\experimentdate{1 października 2026}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+% ----------------------------------------------------------------------
+%  ABSTRAKT I PRZEDMOWA
+%  Oba na pełną szerokość, przed \begincolumns, bez nagłówka:
+%    abstract — mała, pogrubiona kursywa,
+%    preface  — kursywa zamknięta poziomą kreską (np. cel ćwiczenia).
+%  Oba są opcjonalne.
+% ----------------------------------------------------------------------
+\begin{abstract}
+Jedno–trzy zdania: co zbadano, jaką metodą i jaki jest główny wynik z niepewnością, np. $g = \qty{9.81(4)}{\metre\per\second\squared}$.
+\end{abstract}
+
+% ----------------------------------------------------------------------
+%  DWIE KOLUMNY
+%  \begincolumns otwiera dwie kolumny w miejscu wywołania; wszystko
+%  powyżej zostaje na pełną szerokość. Kolumny zamykają się same na
+%  końcu dokumentu. Drugie wywołanie nic nie robi.
+% ----------------------------------------------------------------------
+\begincolumns
+
+% ----------------------------------------------------------------------
+%  ROZDZIAŁY
+%  W trybie report rozdziały są nienumerowane; odwołuje się do nich
+%  nazwą: \nameref{sec:teoria} → „Zarys teoretyczny”.
+%  Równania, rysunki, tabele i środowiska twierdzeń są numerowane
+%  1, 2, … w całym dokumencie.
+% ----------------------------------------------------------------------
+\section{Zarys teoretyczny}\label{sec:teoria}
+
+% Odsyłacze: \cref sam dopisuje nazwę obiektu w odpowiednim języku:
+%   \cref{eq:okres} → „równanie (1)”, \cref{rys:schemat} → „Rys. 1”,
+%   \cref{tab:pomiary} → „Tab. 1”, \Cref na początku zdania.
+% \eqref{eq:okres} daje samo „(1)” — do zdań typu „wzór (1)”.
+Dla małych wychyleń okres drgań wahadła matematycznego o długości $l$ wynosi
+\begin{equation}
+	T = 2\pi\sqrt{\frac{l}{g}}
+	\label{eq:okres}
+\end{equation}
+gdzie $g$ jest przyspieszeniem ziemskim. Z \cref{eq:okres} wynika liniowa zależność $T^2 = (4\pi^2/g)\,l$.
+
+% Przypisy: znacznik z nawiasem („³⁾”), żeby po symbolu nie wyglądał
+% jak potęga. Przypisy z wnętrza bloków (twierdzeń, definicji) też
+% trafiają na dół strony i mają wspólną numerację.
+Wzór~\eqref{eq:okres} jest przybliżeniem małych drgań\footnote{Dla amplitudy $\theta_0$ poprawka pierwszego rzędu wynosi $T \approx T_0\,(1 + \theta_0^2/16)$.}.
+
+% Środowiska twierdzeń: definition, theorem, law, lemma, fact,
+% corollary, example, remark (wspólny licznik) oraz proof i aside.
+% Szczegóły w streszczenie.tex i skrypt.tex. W sprawozdaniu przydaje się
+% głównie law (prawo fizyczne):
+\begin{law}[Zasada izochronizmu]\label{prawo:izochronizm}
+Okres małych drgań wahadła nie zależy od amplitudy.
+\end{law}
+
+\section{Metodologia}\label{sec:metodologia}
+
+% RYSUNKI I TABELE
+% W trybie report figure i table stoją dokładnie tam, gdzie je wpisano
+% ([H] — w kolumnach nie mogą „pływać”). figure* i table* zajmują obie
+% kolumny i trafiają na górę następnej strony.
+% Rysunek z pliku: \includegraphics[width=\columnwidth]{rysunki/zdjecie}
+% Rysunek TikZ z osobnego pliku: \input{rysunki/schemat}
+% Kolory wielkości fizycznych (te same w tekście i w TikZ):
+%   udtPos (położenie), udtVel (prędkość), udtAcc (przyspieszenie),
+%   udtForce (siła, moment siły), udtMom (pęd, moment pędu),
+%   udtAxis (osie, wersory, układy odniesienia).
+\begin{figure}
+	\centering
+	\begin{tikzpicture}[>=Stealth, line cap=round, font=\small]
+		\fill[pattern=north east lines, pattern color=udtAxis] (-1,0) rectangle (1,0.2);
+		\draw[thick, udtAxis] (-1,0) -- (1,0);
+		\draw[dashed, udtAxis] (0,0) -- (0,-2.6);
+		\draw[thick] (0,0) -- node[right] {$l$} (-25:2.5) coordinate (m);
+		\fill (m) circle (3pt);
+		\draw[->, thick, udtForce] (m) -- ++(0,-1) node[right] {$m\va{g}$};
+		\draw (0,-0.8) arc[start angle=-90, end angle=-65, radius=0.8];
+		\node at (-80:1.1) {$\theta$};
+	\end{tikzpicture}
+	\caption{Schemat wahadła matematycznego.}
+	\label{rys:schemat}
+\end{figure}
+
+Długość wahadła $l$ mierzono taśmą mierniczą, a okres $T$ wyznaczano z czasu dziesięciu pełnych drgań (\cref{rys:schemat}).
+
+\section{Wyniki}\label{sec:wyniki}
+
+% Tabela: booktabs (\toprule, \midrule, \bottomrule) i kolumny S
+% z siunitx (wyrównanie do przecinka). Nagłówki kolumn S w nawiasach {}.
+% Liczby i jednostki: \num{1.23}, \unit{\metre}, \qty{9.81}{\metre\per\second\squared},
+% z niepewnością \qty{9.81(4)}{...} → (9,81 ± 0,04) m/s².
+\begin{table}
+	\centering
+	\caption{Okres drgań dla różnych długości wahadła}
+	\label{tab:pomiary}
+	\begin{tabular}{S[table-format=1.2] S[table-format=1.3] S[table-format=1.3]}
+		\toprule
+		{$l$ [\unit{\metre}]} & {$T$ [\unit{\second}]} & {$T^2$ [\unit{\second\squared}]} \\
+		\midrule
+		0.50 & 1.419 & 2.014 \\
+		0.75 & 1.738 & 3.021 \\
+		1.00 & 2.006 & 4.024 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+% Wykres pgfplots na szerokość kolumny. Rysunek złożony: subfigure,
+% podpisy (a), (b) i odsyłacze \cref{rys:wykres-a} → „Rys. 2a”.
+% pgfplots nie korzysta z ustawień siunitx: przecinek dziesiętny na osiach
+% daje opcja /pgf/number format/use comma.
+\begin{figure}
+	\centering
+	\begin{subfigure}{0.48\columnwidth}
+		\centering
+		\begin{tikzpicture}
+			\begin{axis}[width=\linewidth, xlabel={$l$ [\unit{\metre}]}, ylabel={$T$ [\unit{\second}]}, font=\footnotesize, /pgf/number format/use comma]
+				\addplot[only marks, udtPos] coordinates {(0.50,1.419) (0.75,1.738) (1.00,2.006)};
+			\end{axis}
+		\end{tikzpicture}
+		\caption{}
+		\label{rys:wykres-a}
+	\end{subfigure}\hfill
+	\begin{subfigure}{0.48\columnwidth}
+		\centering
+		\begin{tikzpicture}
+			\begin{axis}[width=\linewidth, xlabel={$l$ [\unit{\metre}]}, ylabel={$T^2$ [\unit{\second\squared}]}, font=\footnotesize, /pgf/number format/use comma]
+				\addplot[only marks, udtPos] coordinates {(0.50,2.014) (0.75,3.021) (1.00,4.024)};
+				\addplot[domain=0.45:1.05, udtForce] {4.025*x};
+			\end{axis}
+		\end{tikzpicture}
+		\caption{}
+		\label{rys:wykres-b}
+	\end{subfigure}
+	\caption{Okres drgań (a) i jego kwadrat (b) w funkcji długości wahadła.}
+	\label{rys:wykres}
+\end{figure}
+
+Wyniki zebrano w \cref{tab:pomiary}. Zależność $T^2(l)$ na \cref{rys:wykres-b} jest liniowa, zgodnie z~\cref{eq:okres}; z nachylenia prostej $a = 4\pi^2/g$ wyznaczono $g = \qty{9.81(4)}{\metre\per\second\squared}$. Niepewności liczono zgodnie z~\cite{taylor}.
+
+% WARIANTY — treść warunkowa (pełny opis w skrypt.tex).
+% Wariant extended jest predefiniowany. Treść w środowisku extended
+% pojawia się tylko w wersji rozszerzonej (opcja full albo nazwa
+% zadania kończąca się na -ext), oznaczona cienką kreską na marginesie.
+% W zwykłej wersji znika, jakby jej nie było. Ukryta treść nie dostaje
+% numerów, więc numeracja obu wersji się różni; środowiska z gwiazdką
+% (remark*, example*, …) mają ten sam wygląd bez numeru.
+\begin{extended}
+\begin{remark*}
+Pełne obliczenia niepewności: dopasowanie metodą najmniejszych kwadratów daje $a = \qty{4.025(16)}{\second\squared\per\metre}$, skąd $u(g) = g\,u(a)/a$.
+\end{remark*}
+\end{extended}
+
+\section{Wnioski}\label{sec:wnioski}
+
+Wyznaczona wartość $g$ zgadza się z wartością tablicową w granicach niepewności. Wynik (rozdział \nameref{sec:wyniki}) potwierdza \cref{prawo:izochronizm} w zakresie małych wychyleń.
+
+% Bibliografia: pozycje cytowane przez \cite, w kolejności cytowania.
+\printbibliography
+
+\end{document}
