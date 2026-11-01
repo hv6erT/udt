@@ -93,7 +93,7 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt-core}[2026/10/28 v0.10.2 Universal Document Template, common part]
+\ProvidesPackage{udt-core}[2026/11/01 v0.10.3 Universal Document Template, common part]
 
 % ============================================================
 %  OPTIONS
@@ -630,7 +630,8 @@
 % bar is drawn at shipout from positions saved in the .aux file
 % (zref-savepos; it appears after the second run). Footnotes in a
 % proof therefore go to the foot of the page, and blocks inside a
-% proof break across pages like anywhere else.
+% proof break across pages like anywhere else. In two columns the
+% bar follows the proof from column to column.
 \zref@newlist{udt@pf}
 \zref@newprop{udt@pfshift}[0]{0}
 \zref@addprops{udt@pf}{posx,posy,abspage,udt@pfshift}
@@ -730,9 +731,10 @@
 		\udt@pf@orig@makecol
 	}%
 }
-% Bar from the begin mark (or the top of the main text) to the end
-% mark (or the bottom of the main text) on every page of the proof.
-\newcommand*\udt@pf@drawone[2]{%
+% Single-column text: bar from the begin mark (or the top of the main
+% text) to the end mark (or the bottom of the main text) on every page
+% of the proof.
+\newcommand*\udt@pf@drawpage[2]{%
 	\begingroup
 	\@tempcnta=\udt@pf@get{#1}{abspage}\relax
 	\@tempcntb=\udt@pf@get{#2}{abspage}\relax
@@ -767,6 +769,137 @@
 		\fi\fi
 	\fi\fi
 	\endgroup
+}
+% Columns of multicols: a position mark at the left edge of every
+% column box, with the box dimensions, so that a proof continued in
+% the next column (on the same page or the next) gets its bar in
+% that column. The marks are added to the column output of multicol.
+\zref@newprop{udt@colwd}[0]{0}
+\zref@newprop{udt@colht}[0]{0}
+\zref@newprop{udt@coldp}[0]{0}
+\zref@newlist{udt@col}
+\zref@addprops{udt@col}{posx,posy,abspage,udt@colwd,udt@colht,udt@coldp}
+\newcount\udt@col@n
+% #1 = number of the column box
+\newcommand*\udt@col@mark[1]{%
+	\global\advance\udt@col@n\@ne
+	\zref@savepos
+	\edef\udt@tmp{%
+		\noexpand\zref@setcurrent{udt@colwd}{\number\wd#1}%
+		\noexpand\zref@setcurrent{udt@colht}{\number\ht#1}%
+		\noexpand\zref@setcurrent{udt@coldp}{\number\dp#1}%
+		\noexpand\zref@labelbylist{udt@col@\the\udt@col@n}{udt@col}}%
+	\udt@tmp
+}
+\patchcmd\LR@column@boxes{\box\count@}{\udt@col@mark\count@\box\count@}{}{}
+\patchcmd\LR@column@boxes{\box\mult@rightbox}{\udt@col@mark\mult@rightbox\box\mult@rightbox}{}{}
+\patchcmd\RL@column@boxes{\box\count@}{\udt@col@mark\count@\box\count@}{}{}
+\patchcmd\RL@column@boxes{\box\mult@rightbox}{\udt@col@mark\mult@rightbox\box\mult@rightbox}{}{}
+\LRmulticolcolumns
+% Column holding the position mark #1: the last column mark on the
+% same page whose box spans the mark vertically and whose left edge
+% is not to the right of it; result in \udt@pf@c, 0 outside columns.
+\newcount\udt@pf@c
+\newcommand*\udt@pf@colof[1]{%
+	\global\udt@pf@c\z@
+	\begingroup
+	\@tempcnta=\udt@pf@get{#1}{abspage}\relax
+	\@tempdima=\udt@pf@get{#1}{posx}sp\relax
+	\advance\@tempdima\p@
+	\@tempdimb=\udt@pf@get{#1}{posy}sp\relax
+	\count@\@ne
+	\udt@pf@colscan
+	\endgroup
+}
+\newcommand*\udt@pf@colscan{%
+	\zref@ifrefundefined{udt@col@\the\count@}{\let\udt@next\relax}{%
+		\edef\udt@tmp{udt@col@\the\count@}%
+		\ifnum\udt@pf@get\udt@tmp{abspage}=\@tempcnta
+			\dimen@=\udt@pf@get\udt@tmp{posy}sp\relax
+			\dimen@ii=\dimen@
+			\advance\dimen@\udt@pf@get\udt@tmp{udt@colht}sp\relax
+			\advance\dimen@ 4\p@
+			\advance\dimen@ii-\udt@pf@get\udt@tmp{udt@coldp}sp\relax
+			\advance\dimen@ii-4\p@
+			\ifdim\@tempdimb<\dimen@ \ifdim\@tempdimb>\dimen@ii
+				\ifdim\udt@pf@get\udt@tmp{posx}sp<\@tempdima
+					\global\udt@pf@c\count@
+				\fi
+			\fi\fi
+		\fi
+		\advance\count@\@ne
+		\let\udt@next\udt@pf@colscan
+	}%
+	\udt@next
+}
+% Bar of one proof on the current page. The columns of the begin
+% and end marks are found once and kept.
+\newcommand*\udt@pf@drawone[2]{%
+	\ifcsname udt@pf@cb@#1\endcsname\else
+		\udt@pf@colof{#1}%
+		\expandafter\xdef\csname udt@pf@cb@#1\endcsname{\the\udt@pf@c}%
+		\udt@pf@colof{#2}%
+		\expandafter\xdef\csname udt@pf@ce@#1\endcsname{\the\udt@pf@c}%
+	\fi
+	\ifnum\csname udt@pf@cb@#1\endcsname=\z@
+		\udt@pf@drawpage{#1}{#2}%
+	\else\ifnum\csname udt@pf@ce@#1\endcsname=\z@
+		\udt@pf@drawpage{#1}{#2}%
+	\else
+		\udt@pf@drawcols{#1}{#2}%
+	\fi\fi
+}
+% Text in columns: in every column from that of the begin mark to
+% that of the end mark, a bar from the begin mark (or the top of the
+% column) to the end mark (or the bottom of the column), at the same
+% distance from the left edge of the column as in the first one.
+\newcommand*\udt@pf@drawcols[2]{%
+	\begingroup
+	\count@=\csname udt@pf@cb@#1\endcsname\relax
+	\@tempcntb=\csname udt@pf@ce@#1\endcsname\relax
+	\@tempdima=\udt@pf@get{#1}{posx}sp\relax
+	\advance\@tempdima-\udt@pf@get{udt@col@\the\count@}{posx}sp\relax
+	\advance\@tempdima\udt@pf@get{#1}{udt@pfshift}sp\relax
+	\udt@pf@colseg{#1}{#2}%
+	\endgroup
+}
+\newcommand*\udt@pf@colseg[2]{%
+	\ifnum\count@>\@tempcntb
+		\let\udt@next\relax
+	\else
+		\edef\udt@tmp{udt@col@\the\count@}%
+		\ifnum\udt@pf@get\udt@tmp{abspage}=\ReadonlyShipoutCounter
+			\dimen@=\udt@pf@get\udt@tmp{posy}sp\relax
+			\dimen@ii=\dimen@
+			\advance\dimen@\udt@pf@get\udt@tmp{udt@colht}sp\relax
+			\advance\dimen@ii-\udt@pf@get\udt@tmp{udt@coldp}sp\relax
+			\ifnum\count@=\csname udt@pf@cb@#1\endcsname\relax
+				\dimen@=\udt@pf@get{#1}{posy}sp\relax
+			\fi
+			\ifnum\count@=\@tempcntb
+				\dimen@ii=\udt@pf@get{#2}{posy}sp\relax
+			\fi
+			\@tempdimb=\udt@pf@get\udt@tmp{posx}sp\relax
+			\advance\@tempdimb\@tempdima
+			\udt@pf@bar
+		\fi
+		\advance\count@\@ne
+		\def\udt@next{\udt@pf@colseg{#1}{#2}}%
+	\fi
+	\udt@next
+}
+% Grey bar at x = \@tempdimb from y = \dimen@ down to y = \dimen@ii
+% (positions measured from the lower left corner of the page).
+\newcommand*\udt@pf@bar{%
+	\ifdim\dimen@>\dimen@ii
+		% values expanded now: \put uses scratch registers itself
+		\edef\udt@tmp{\noexpand\put(0,0){\hbox to\z@{\kern\the\@tempdimb
+			\lower\the\dimexpr\paperheight-\dimen@ii\relax\hbox{%
+				\noexpand\color{black!30}\vrule width 0.6pt
+				height \the\dimexpr\dimen@-\dimen@ii\relax\space depth\z@}%
+			\hss}}}%
+		\udt@tmp
+	\fi
 }
 \AddToHook{shipout/background}{\udt@pf@drawall}
 

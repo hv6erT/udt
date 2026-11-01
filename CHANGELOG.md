@@ -16,6 +16,15 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.10.3] — 2026-11-01
+
+### Fixed
+- Proof bar in two columns: a proof continued in the next column
+  (on the same page or the next) got its bar at the position of the
+  first column, running through the text of the other one. The bar
+  now follows the proof from column to column; column positions
+  come from marks added to the column output of `multicol`.
+
 ## [0.10.2] — 2026-10-28
 
 ### Added
