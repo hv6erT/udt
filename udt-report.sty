@@ -63,7 +63,7 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt-report}[2026/11/01 v0.10.3 Universal Document Template, report mode]
+\ProvidesPackage{udt-report}[2026/11/07 v0.10.4 Universal Document Template, report mode]
 \DeclareOption*{\PassOptionsToPackage{\CurrentOption}{udt-core}}
 \ProcessOptions\relax
 \RequirePackage{udt-core}
@@ -101,9 +101,15 @@
 %  placed exactly where written ([H], float package). This makes
 %  a plain figure/table work inside a column; figure*/table*
 %  still span both columns (at the top of the next page).
+%  \floatplacement also sets the default placement of figure*
+%  and table* to [H], which a two-column float cannot use: such
+%  a float was never output and vanished without a warning.
+%  The starred environments therefore default to [tp].
 % ============================================================
 \floatplacement{figure}{H}
 \floatplacement{table}{H}
+\@namedef{figure*}{\@ifnextchar[{\@dblfloat{figure}}{\@dblfloat{figure}[tp]}}
+\@namedef{table*}{\@ifnextchar[{\@dblfloat{table}}{\@dblfloat{table}[tp]}}
 
 
 % ============================================================

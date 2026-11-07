@@ -16,6 +16,15 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.10.4] — 2026-11-07
+
+### Fixed
+- Report mode: `figure*` and `table*` without a placement option
+  were never output and vanished without a warning, because
+  `\floatplacement{figure}{H}` also set their default to [H],
+  which a two-column float cannot use. The starred environments
+  now default to [tp].
+
 ## [0.10.3] — 2026-11-01
 
 ### Fixed
