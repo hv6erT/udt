@@ -93,7 +93,7 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt-core}[2026/11/07 v0.10.4 Universal Document Template, common part]
+\ProvidesPackage{udt-core}[2026/11/15 v0.10.5 Universal Document Template, common part]
 
 % ============================================================
 %  OPTIONS
@@ -176,6 +176,10 @@
 %  PACKAGES — tables, lists
 % ============================================================
 \RequirePackage{booktabs}
+% booktabs leaves no space below \bottomrule (\belowbottomsep = 0pt),
+% so notes set as rows under the rule touch it; give them the same
+% gap as below \toprule and \midrule.
+\setlength{\belowbottomsep}{\belowrulesep}
 \RequirePackage{array}
 \RequirePackage{multirow}
 \RequirePackage{enumitem}

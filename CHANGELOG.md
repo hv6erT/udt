@@ -16,6 +16,13 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.10.5] — 2026-11-15
+
+### Fixed
+- Table notes set as rows under `\bottomrule` touched the rule,
+  because booktabs sets `\belowbottomsep` to 0pt. It now equals
+  `\belowrulesep`, the gap used below `\toprule` and `\midrule`.
+
 ## [0.10.4] — 2026-11-07
 
 ### Fixed
