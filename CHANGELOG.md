@@ -16,6 +16,14 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.10.6] — 2026-11-15
+
+### Fixed
+- A report whose two columns, with footnotes, filled the last page
+  got an extra empty page with only a footnote rule: the empty
+  insertion multicol adds after balanced columns slipped to the next
+  page. Columns closed at the end of the document no longer add it.
+
 ## [0.10.5] — 2026-11-15
 
 ### Fixed

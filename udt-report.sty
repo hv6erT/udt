@@ -63,7 +63,7 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt-report}[2026/11/15 v0.10.5 Universal Document Template, report mode]
+\ProvidesPackage{udt-report}[2026/11/15 v0.10.6 Universal Document Template, report mode]
 \DeclareOption*{\PassOptionsToPackage{\CurrentOption}{udt-core}}
 \ProcessOptions\relax
 \RequirePackage{udt-core}
@@ -188,4 +188,10 @@
 		\begin{multicols}{2}%
 	\fi
 }
-\AtEndDocument{\ifudt@columns\end{multicols}\fi}
+% multicol puts an empty footnote insertion after the balanced
+% columns (\reinsert@footnotes), so that text following the
+% columns leaves room for the footnotes held from them. Here
+% nothing follows, and when the columns fill the page the
+% insertion slips to the next one: an empty page with only a
+% footnote rule. The footnotes are output with the columns anyway.
+\AtEndDocument{\ifudt@columns\global\let\reinsert@footnotes\relax\end{multicols}\fi}
