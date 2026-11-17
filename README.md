@@ -5,7 +5,7 @@ papers, notes, lecture summaries). Two modes in two files sharing a
 common core; successor of `urt.sty` (reports) and the former
 `udt.sty`.
 
-> **Status:** 0.10.6 — interface may still change before 1.0.0.
+> **Status:** 0.11.0 — interface may still change before 1.0.0.
 > Changes and migration notes: see `CHANGELOG.md`.
 
 ## Files
@@ -22,13 +22,14 @@ A document needs `udt-core.sty` and the mode file it uses.
 
 ```latex
 \documentclass[a4paper, polish, 11pt]{scrartcl}
-\usepackage{udt-report}   % or {udt-script}; options: plain, chem, full
+\usepackage{udt-report}   % or {udt-script}; options: plain, chem, full, landscape
 ```
 
 Language (babel) comes from the class options; Polish and English
 strings are provided. Option `plain` draws theorem-like environments
 without coloured blocks; `chem` adds `mhchem` and chemistry macros;
-`full` switches on all variants — environments of conditional
+`landscape` turns the A4 page (the report keeps two columns, the
+script one); `full` switches on all variants — environments of conditional
 content declared with `\newvariant` and switched on one by one with
 `\showvariant` (one source, several versions of a document).
 

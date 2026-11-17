@@ -16,7 +16,9 @@
 %              \std             superscript of the standard state (⦵)
 %              \Eo              standard potential E⦵
 %              \redox{Ox}{Red}  redox couple Ox/Red
-%    full  — switches on all variants (see below).
+%    full  — switches on all variants (see below);
+%    landscape — A4 in landscape orientation. The report keeps
+%            its two columns, the script its single column.
 %
 %  The document language is taken from the class options
 %  (babel). Typeset strings (headings, labels, cross-reference
@@ -93,7 +95,7 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt-core}[2026/11/15 v0.10.6 Universal Document Template, common part]
+\ProvidesPackage{udt-core}[2026/11/17 v0.11.0 Universal Document Template, common part]
 
 % ============================================================
 %  OPTIONS
@@ -101,9 +103,11 @@
 \newif\ifudt@chem
 \newif\ifudt@full
 \newif\ifudt@plain
+\newif\ifudt@landscape
 \DeclareOption{chem}{\udt@chemtrue}
 \DeclareOption{full}{\udt@fulltrue}
 \DeclareOption{plain}{\udt@plaintrue}
+\DeclareOption{landscape}{\udt@landscapetrue}
 \DeclareOption*{\PackageWarning{udt-core}{Unknown option `\CurrentOption'}}
 \ProcessOptions\relax
 
@@ -205,6 +209,9 @@
 	top    = 2.5cm,
 	bottom = 2.5cm,
 }
+% Landscape: the same margins on the turned page; geometry also
+% sets the page size of the PDF.
+\ifudt@landscape\geometry{landscape}\fi
 \RequirePackage{scrlayer-scrpage}
 \RequirePackage{microtype}
 \RequirePackage{setspace}

@@ -16,6 +16,13 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.11.0] — 2026-11-17
+
+### Added
+- Option `landscape`: A4 in landscape orientation with the same
+  margins, in both modes. The report keeps its two columns, the
+  script its single column.
+
 ## [0.10.6] — 2026-11-15
 
 ### Fixed
