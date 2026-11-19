@@ -16,6 +16,19 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.12.0] — 2026-11-19
+
+### Added
+- Environment `postulate` (and the unnumbered `postulate*`): its own
+  kind of block for postulates and axioms of a theory, numbered with
+  the other theorem-like environments, upright, in teal
+  (`udtPostulateColor`). Names: Postulate / Postulat.
+
+### Fixed
+- A list (`enumerate`, `itemize`, `description`) that opens a
+  theorem-like environment set its first item on the line of the
+  head. The list now starts on the line below the head.
+
 ## [0.11.0] — 2026-11-17
 
 ### Added
