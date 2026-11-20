@@ -36,19 +36,19 @@
 
 % ----------------------------------------------------------------------
 %  ŚRODOWISKA TWIERDZEŃ
-%  Każde jest kolorowym blokiem z paskiem po lewej. Wspólny licznik
+%  Treść to kolorowy blok z grubym paskiem po lewej, komentarz
+%  (example, remark) — lekki blok z cienkim paskiem. Wspólny licznik
 %  (w trybie report 1, 2, … w całym dokumencie), więc „Definicja 3”
 %  wskazuje dokładnie jeden obiekt. Nazwa własna w nawiasie kwadratowym;
 %  przy kilku nazwach — wszystkie, najpopularniejsza pierwsza.
+%    law, postulate — prawo fizyczne, postulat (prosto, fioletowy),
 %    definition — definicja (prosto, niebieski),
 %    theorem    — twierdzenie (kursywa, czerwony),
-%    law        — prawo fizyczne (prosto, fioletowy),
-%    postulate  — postulat, aksjomat teorii (prosto, morski),
 %    lemma, fact, corollary — lemat, fakt, wniosek (kursywa, zielony),
-%    example    — przykład (prosto, szary),
-%    remark     — uwaga (prosto, pomarańczowy).
-%  Każde ma bliźniaka z gwiazdką (definition*, …) — ten sam wygląd, bez
-%  numeru. Odsyłacz: \cref{def:hermit} → „definicja 1”.
+%    example    — przykład (prosto, ciepła szarość, lekki blok),
+%    remark     — uwaga (prosto, ciepła szarość, lekki blok, bez numeru).
+%  Każde numerowane ma bliźniaka z gwiazdką (definition*, …) — ten sam
+%  wygląd, bez numeru. Odsyłacz: \cref{def:hermit} → „definicja 1”.
 %  Opcja plain wyłącza kolorowe bloki (klasyczny wygląd amsthm).
 % ----------------------------------------------------------------------
 \begin{definition}[Macierz hermitowska]\label{def:hermit}

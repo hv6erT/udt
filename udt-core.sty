@@ -43,8 +43,9 @@
 %
 %  Theorem-like environments (one shared counter), each drawn as
 %  a coloured block: definition, theorem, law, postulate, lemma, fact,
-%  corollary, example, remark; plus proof (amsthm) and the
-%  unnumbered aside for side information. Named colours for
+%  corollary, example; the unnumbered remark as a light block;
+%  plus proof (amsthm) and the unnumbered aside for side
+%  information. Named colours for
 %  physical quantities (text and TikZ):
 %  udtPos, udtVel, udtAcc, udtForce, udtMom, udtAxis.
 %
@@ -95,7 +96,7 @@
 % ============================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{udt-core}[2026/11/19 v0.12.0 Universal Document Template, common part]
+\ProvidesPackage{udt-core}[2026/11/20 v0.13.0 Universal Document Template, common part]
 
 % ============================================================
 %  OPTIONS
@@ -539,15 +540,25 @@
 %  colours (vivid) mark physical quantities in text and figures,
 %  the same in the whole document, e.g.
 %      \textcolor{udtForce}{\vec{F}},   \draw[udtVel, ->] ...
+%
+%  Five block colours, one per role of the content:
+%    premises of physics  law, postulate            violet
+%    definitions          definition                blue
+%    theorems             theorem                   red
+%    consequences         lemma, fact, corollary    green
+%    commentary           example, remark           warm grey
+%  The names udtPostulateColor, udtExampleColor and
+%  udtRemarkColor remain as aliases of their group colour.
 % ============================================================
+\definecolor{udtLawColor}       {RGB}{94,53,120}
 \definecolor{udtDefinitionColor}{RGB}{52,86,139}
 \definecolor{udtTheoremColor}   {RGB}{142,36,36}
-\definecolor{udtLawColor}       {RGB}{94,53,120}
-\definecolor{udtPostulateColor} {RGB}{30,105,115}
 \definecolor{udtFactColor}      {RGB}{40,100,70}
-\definecolor{udtExampleColor}   {RGB}{85,95,105}
-\definecolor{udtRemarkColor}    {RGB}{176,112,0}
+\definecolor{udtCommentColor}   {RGB}{125,108,88}
 \definecolor{udtAsideColor}     {RGB}{120,120,120}
+\colorlet{udtPostulateColor}{udtLawColor}
+\colorlet{udtExampleColor}{udtCommentColor}
+\colorlet{udtRemarkColor}{udtCommentColor}
 
 \definecolor{udtPos}  {RGB}{0,90,180}     % position, displacement
 \definecolor{udtVel}  {RGB}{0,140,70}     % velocity
@@ -567,13 +578,22 @@
 %
 %  Styles: theorem, lemma, fact, corollary in italics
 %  (mathematical statements); law, postulate, definition, example, remark
-%  upright. Every environment is drawn as a coloured block with
-%  a bar on the left; proof gets a thin grey bar.
+%  upright. Two layers of blocks:
+%    content     definition, theorem, law, postulate, lemma,
+%                fact, corollary — tinted block, thick bar
+%    commentary  example, remark — no tint, thin bar
+%  so that the skeleton of the text stands out and a comment can
+%  be skipped. proof gets a thin grey bar.
 %
-%  Each environment has an unnumbered starred twin (definition*,
-%  theorem*, …) with the same look. Use it for content that does
-%  not appear in every version of a document (variants such as
-%  extended), so that numbers stay the same across versions.
+%  remark is unnumbered: it is rarely referred to, and a number
+%  of its own would leave gaps in the numbering of definitions
+%  and theorems. remark* remains as an alias.
+%
+%  Each numbered environment has an unnumbered starred twin
+%  (definition*, theorem*, …) with the same look. Use it for
+%  content that does not appear in every version of a document
+%  (variants such as extended), so that numbers stay the same
+%  across versions.
 % ============================================================
 \theoremstyle{plain}
 \newtheorem{theorem}{\udt@name@theorem}  % udt-script: within sections
@@ -588,7 +608,7 @@
 \newtheorem{example}[theorem]{\udt@name@example}
 
 \theoremstyle{remark}
-\newtheorem{remark}[theorem]{\udt@name@remark}
+\newtheorem*{remark}{\udt@name@remark}
 
 \theoremstyle{plain}
 \newtheorem*{theorem*}{\udt@name@theorem}
@@ -618,6 +638,15 @@
 		before skip = 8pt, after skip = 8pt,
 		udt@notes,
 	},
+	% commentary layer: no tint, thin bar
+	udt@comment/.style = {
+		enhanced, breakable, frame hidden, interior hidden,
+		borderline west = {1pt}{0pt}{#1},
+		boxrule = 0pt, leftrule = 1pt, arc = 0pt, outer arc = 0pt,
+		left = 7pt, right = 6pt, top = 1pt, bottom = 1pt,
+		before skip = 8pt, after skip = 8pt,
+		udt@notes,
+	},
 	% a breakable box numbers its footnotes a, b, ... (mpfootnote);
 	% inside savenotes this restores the ordinary footnote counter
 	udt@notes/.style = {before upper app = {\@minipagerestore}},
@@ -642,8 +671,8 @@
 \tcolorboxenvironment{lemma}     {udt@block=udtFactColor}
 \tcolorboxenvironment{fact}      {udt@block=udtFactColor}
 \tcolorboxenvironment{corollary} {udt@block=udtFactColor}
-\tcolorboxenvironment{example}   {udt@block=udtExampleColor}
-\tcolorboxenvironment{remark}    {udt@block=udtRemarkColor}
+\tcolorboxenvironment{example}   {udt@comment=udtCommentColor}
+\tcolorboxenvironment{remark}    {udt@comment=udtCommentColor}
 \tcolorboxenvironment{definition*}{udt@block=udtDefinitionColor}
 \tcolorboxenvironment{theorem*}   {udt@block=udtTheoremColor}
 \tcolorboxenvironment{law*}       {udt@block=udtLawColor}
@@ -651,8 +680,8 @@
 \tcolorboxenvironment{lemma*}     {udt@block=udtFactColor}
 \tcolorboxenvironment{fact*}      {udt@block=udtFactColor}
 \tcolorboxenvironment{corollary*} {udt@block=udtFactColor}
-\tcolorboxenvironment{example*}   {udt@block=udtExampleColor}
-\tcolorboxenvironment{remark*}    {udt@block=udtRemarkColor}
+\tcolorboxenvironment{example*}   {udt@comment=udtCommentColor}
+\tcolorboxenvironment{remark*}    {udt@comment=udtCommentColor}
 \fi
 % proof — thin grey bar on the left. The proof is not a box: the
 % bar is drawn at shipout from positions saved in the .aux file

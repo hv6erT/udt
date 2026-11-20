@@ -16,6 +16,25 @@ versioning: [SemVer](https://semver.org/).
 - Release 1.0.0 after the first real report and script are written
   with the package.
 
+## [0.13.0] — 2026-11-20
+
+### Changed
+- Two visual layers of theorem-like blocks. Content (`definition`,
+  `theorem`, `law`, `postulate`, `lemma`, `fact`, `corollary`) keeps
+  the tinted block with a thick bar; commentary (`example`,
+  `remark`) gets no tint and a thin bar, so that the skeleton of
+  the text stands out and a comment can be skipped.
+- `remark` is unnumbered and no longer takes a number from the
+  shared counter, which left gaps in the numbering of definitions
+  and theorems. `remark*` remains as an alias. Documents with
+  remarks get new numbers.
+- Block colours grouped by role, five instead of seven: premises
+  (`law`, `postulate`) violet, definitions blue, theorems red,
+  consequences (`lemma`, `fact`, `corollary`) green, commentary
+  (`example`, `remark`) warm grey (`udtCommentColor`). The names
+  `udtPostulateColor`, `udtExampleColor`, `udtRemarkColor` remain
+  as aliases.
+
 ## [0.12.0] — 2026-11-19
 
 ### Added
